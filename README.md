@@ -5,7 +5,7 @@ This is the frontend application for the Car Parking System. It is built with Re
 ## Prerequisites
 
 - **Node.js**: Version 18.20 or above is recommended. You can download it from [nodejs.org](https://nodejs.org/).
-- **npm**: Comes bundled with Node.js. Alternatively, you can use [Yarn](https://yarnpkg.com/). Created with Version 10.7.0
+- **npm**: Comes bundled with Node.js. Created with Version 10.7.0
 
 ## Installation
 
