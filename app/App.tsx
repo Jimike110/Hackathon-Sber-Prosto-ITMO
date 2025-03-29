@@ -32,41 +32,85 @@
 
 // src/App.tsx
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import MainLayout from './ui/components/Layout/MainLayout';
-import Home from './pages/Home/Home';
-import WorkerDashboard from './pages/Worker/WorkerDashboard';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import GuestDashboard from './pages/Guest/GuestDashboard';
 import {LoginPage} from './ui/components/auth/LoginPage';
 import {RegisterPage} from './ui/components/auth/RegisterPage';
-import './App.css';
 import WorkerLandingPage from './pages/Worker/WorkerLandingPage';
+import Map from './ui/components/Map';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StoreProvider } from './ui/containers/store-provider';
+import { AuthProvider } from './ui/containers/auth-provider';
+import AddVehiclePage from './pages/Worker/AddVehiclePage';
+import ScreenShare from './ui/components/screen-share/ScreenShare';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import QRScanner from './ui/components/QRScanner';
+
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
   return (
-    <Routes>
-      {/* Public authentication routes */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-      {/* Main layout wraps the app's primary content */}
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<Home />} />
-        {/* Worker Dashboard as a parent route */}
-        <Route path="worker" element={<WorkerDashboard />}>
-          {/* Default worker landing page */}
-          <Route index element={<WorkerLandingPage />} />
-          {/* Nested route for adding a vehicle */}
-          <Route path="add-vehicle" element={<WorkerDashboard.AddVehiclePage />} />
-        </Route>
-        <Route path="admin/*" element={<AdminDashboard />} />
-        <Route path="guest/*" element={<GuestDashboard />} />
-      </Route>
-
-      {/* Fallback */}
-      {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
-    </Routes>
+            {/* Main layout with dynamic titles */}
+            <Route element={<MainLayout />}>
+              <Route 
+                path="/" 
+                element={<Map />} 
+                handle={{ title: 'Parking Map Overview' }}
+              />
+              <Route 
+                path="worker" 
+                handle={{ title: 'Worker Dashboard' }}
+              >
+                <Route 
+                  index 
+                  element={<WorkerLandingPage />} 
+                  handle={{ title: 'My Vehicles' }}
+                />
+                <Route 
+                  path="add-vehicle" 
+                  element={<AddVehiclePage />} 
+                  handle={{ title: 'Add New Vehicle' }}
+                />
+              </Route>
+              <Route path='/admin'>
+                <Route 
+                  index 
+                  element={<AdminDashboard />} 
+                  handle={{ title: 'Administration Panel' }}
+                />
+                <Route 
+                  path='/admin/qr' 
+                  element={<QRScanner />} 
+                  handle={{ title: 'QR Scanner' }}
+                />
+                <Route 
+                  path='/admin/screen' 
+                  element={<ScreenShare />} 
+                  handle={{ title: 'Administration Panel' }}
+                />
+              </Route>
+              <Route 
+                path="admin/*" 
+                element={<div>Admin Dashboard</div>} 
+                handle={{ title: 'Administration Panel' }}
+              />
+              <Route 
+                path="guest/*" 
+                element={<div>Guest Dashboard</div>} 
+                handle={{ title: 'Guest Access' }}
+              />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </StoreProvider>
+    </QueryClientProvider>
   );
 };
 

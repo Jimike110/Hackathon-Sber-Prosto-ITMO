@@ -1,7 +1,7 @@
 // src/components/Navigation/Sidebar.tsx
 import React from 'react';
-import { Menu } from 'antd';
-import { DashboardOutlined, CarOutlined, PlusOutlined, UserOutlined } from '@ant-design/icons';
+import { Menu, QRCode } from 'antd';
+import { DashboardOutlined, CarOutlined, PlusOutlined, UserOutlined, QrcodeOutlined, MonitorOutlined, CameraOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar: React.FC = () => {
@@ -10,9 +10,11 @@ const Sidebar: React.FC = () => {
 
   const menuItems = [
     { label: 'Home', key: '/', icon: <DashboardOutlined /> },
-    { label: 'My Vehicles', key: '/worker', icon: <CarOutlined /> },
+    { label: 'My Profile', key: '/worker', icon: <CarOutlined /> },
     { label: 'Add Vehicle', key: '/worker/add-vehicle', icon: <PlusOutlined /> },
     { label: 'Admin Panel', key: '/admin', icon: <UserOutlined /> },
+    { label: "QR Checker", key: '/admin/qr', icon: <QrcodeOutlined />},
+    { label: "Screen", key: "/admin/screen", icon: <CameraOutlined />}
   ];
 
   const handleClick = (e: any) => {

@@ -1,5 +1,5 @@
-// src/pages/Worker/AddVehiclePage.tsx
-import React from 'react';
+// src/pages/Worker/MyProfile.tsx
+import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,9 +7,11 @@ const { Title } = Typography;
 
 const AddVehiclePage: React.FC = () => {
   const navigate = useNavigate();
+  const [cars, setCars] = useState();
 
   const onFinish = (values: any) => {
     console.log('Vehicle Added:', values);
+    setCars(values)
     // After successfully adding a vehicle, navigate back to the landing page.
     navigate('/worker');
   };
@@ -18,6 +20,13 @@ const AddVehiclePage: React.FC = () => {
     <Card style={{ padding: '24px' }}>
       <Title level={2}>Add Vehicle</Title>
       <Form layout="vertical" onFinish={onFinish}>
+      <Form.Item 
+          label="Vehicle Manufacturer" 
+          name="manufacturer" 
+          rules={[{ required: true, message: 'Please enter the vehicle manufacturer' }]}
+        >
+          <Input />
+        </Form.Item>
         <Form.Item 
           label="Vehicle Model" 
           name="model" 
