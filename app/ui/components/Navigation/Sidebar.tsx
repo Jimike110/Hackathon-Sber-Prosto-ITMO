@@ -12,6 +12,7 @@ const Sidebar: React.FC = () => {
     { label: 'Home', key: '/', icon: <DashboardOutlined /> },
     { label: 'My Profile', key: '/worker', icon: <CarOutlined /> },
     { label: 'Add Vehicle', key: '/worker/add-vehicle', icon: <PlusOutlined /> },
+    { label: 'Guests', key: '/worker/guests', icon: <UserOutlined />},
     { label: 'Admin Panel', key: '/admin', icon: <UserOutlined /> },
     { label: "QR Checker", key: '/admin/qr', icon: <QrcodeOutlined />},
     { label: "Screen", key: "/admin/screen", icon: <CameraOutlined />}

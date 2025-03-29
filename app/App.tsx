@@ -45,6 +45,7 @@ import AddVehiclePage from './pages/Worker/AddVehiclePage';
 import ScreenShare from './ui/components/screen-share/ScreenShare';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import QRScanner from './ui/components/QRScanner';
+import MyGuests from './pages/Worker/MyGuests';
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,11 @@ const App: React.FC = () => {
                   path="add-vehicle" 
                   element={<AddVehiclePage />} 
                   handle={{ title: 'Add New Vehicle' }}
+                />
+                <Route 
+                  path="guests" 
+                  element={<MyGuests />} 
+                  handle={{ title: 'My Guests' }}
                 />
               </Route>
               <Route path='/admin'>

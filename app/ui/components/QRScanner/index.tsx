@@ -1,33 +1,50 @@
-import { Button, Col, Row, Typography, message } from 'antd';
-import React, { useState } from 'react';
-import ReactQrReader from 'react-qr-reader';
-// import { useMediaQuery } from 'react-responsive';
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Col, Row, Typography, message } from "antd";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 const { Title, Text } = Typography;
 
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-  // const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
-  const isMobile = true;
+  useEffect(() => {
+    // Configuration for the scanner
+    const config = {
+      fps: 10, // scanning speed: frames per second
+      qrbox: 250, // scanning box size (250x250px)
+      rememberLastUsedCamera: true,
+    };
 
-  // Handle the QR code scan result
-  const handleScan = (data: string | null) => {
-    if (data) {
-      setScanResult(data);
-      message.success('QR Code Scanned!');
-    }
-  };
+    const verbose = false;
 
-  // Handle the error while scanning
-  const handleError = (err: any) => {
-    setCameraError('Error accessing the camera.');
-    message.error('Failed to access the camera.');
-  };
+    // Initialize the QR code scanner and render it into the div with id 'qr-reader'
+    scannerRef.current = new Html5QrcodeScanner("qr-reader", config, verbose);
+
+    scannerRef.current.render(
+      (decodedText: string, decodedResult: any) => {
+        setScanResult(decodedText);
+        message.success("QR Code Scanned!");
+        // Optionally, stop scanning after a successful scan
+        scannerRef.current?.clear().catch((error) => console.error("Failed to clear scanner", error));
+      },
+      (errorMessage: string) => {
+        // This callback is invoked in case of scan errors or no QR detected in a frame
+        console.warn("QR scan error:", errorMessage);
+      }
+    );
+
+    // Cleanup the scanner on component unmount
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch((error) => console.error("Failed to clear scanner", error));
+      }
+    };
+  }, []);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: "20px" }}>
       <Row justify="center" align="middle" style={{ marginBottom: "24px" }}>
         <Col>
           <Title level={3}>Scan QR Code</Title>
@@ -35,24 +52,12 @@ const QRScanner = () => {
       </Row>
 
       <Row justify="center" style={{ marginBottom: "24px" }}>
-        <Col span={isMobile ? 24 : 12}>
-          {/* QR Reader component */}
-          {/* <ReactQrReader
-            delay={300}
-            style={{
-              width: '100%',
-              height: 'auto',
-              borderRadius: '8px',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            }}
-            onScan={handleScan}
-            onError={handleError}
-            facingMode="environment"
-          /> */}
+        <Col span={24}>
+          {/* The scanner renders into this element */}
+          <div id="qr-reader" style={{ width: "100%", maxWidth: "300px", margin: "auto" }}></div>
         </Col>
       </Row>
 
-      {/* Display Scan Result */}
       {scanResult && (
         <Row justify="center" align="middle" style={{ marginBottom: "16px" }}>
           <Col>
@@ -62,7 +67,6 @@ const QRScanner = () => {
         </Row>
       )}
 
-      {/* Display Camera Error */}
       {cameraError && (
         <Row justify="center" align="middle" style={{ marginBottom: "16px" }}>
           <Col>
@@ -71,14 +75,18 @@ const QRScanner = () => {
         </Row>
       )}
 
-      {/* Button to open QR scanner */}
       <Row justify="center" style={{ marginBottom: "16px" }}>
         <Col>
           <Button
             type="primary"
-            onClick={() => setCameraError(null)}
+            onClick={() => {
+              // Reset the scan result and reinitialize the scanner by reloading the page.
+              // You could also call a function to reinitialize the scanner without a full reload.
+              setScanResult(null);
+              window.location.reload();
+            }}
           >
-            Start Scanning
+            Scan Again
           </Button>
         </Col>
       </Row>
