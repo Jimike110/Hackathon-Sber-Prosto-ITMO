@@ -1,3 +1,4 @@
+import { fetchData, isApiError } from "@/app/lib/api";
 import { Modal, Space, Typography, DatePicker, Radio, TimePicker, Card } from "antd";
 import Title from "antd/es/typography/Title";
 import dayjs from "dayjs";
@@ -29,6 +30,25 @@ const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
   spaceInfo,
 }) => {
 
+  const getMap = async () => {
+    try {
+      const data = await fetchData(`dynamic_api`);
+      console.log(data);
+    } catch (error) {
+      if (isApiError(error)) {
+        console.log("API Error: ", error.message);
+      }
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      getMap();
+    }, 100);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
 
   // Booking type state
@@ -45,6 +65,7 @@ const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
   // Simulate fetching disabled dates for day booking when booking type changes to 'Day'
   useEffect(() => {
     if (bookingType === 'Day') {
+      const API_ENDPOINT = '/booking/'
       // Example: These dates are occupied – replace with your API call
       setDisabledDayDates(["2025-04-01", "2025-04-05"]);
       // Clear any previously selected values
