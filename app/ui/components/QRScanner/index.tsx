@@ -7,41 +7,60 @@ const { Title, Text } = Typography;
 const QRScanner = () => {
   const [scanResult, setScanResult] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-  useEffect(() => {
-    // Configuration for the scanner
+  const startScanner = () => {
+    if (scannerRef.current) return; // Already initialized
+
     const config = {
-      fps: 10, // scanning speed: frames per second
-      qrbox: 250, // scanning box size (250x250px)
+      fps: 10,
+      qrbox: 250,
       rememberLastUsedCamera: true,
     };
 
-    const verbose = false;
-
-    // Initialize the QR code scanner and render it into the div with id 'qr-reader'
-    scannerRef.current = new Html5QrcodeScanner("qr-reader", config, verbose);
+    scannerRef.current = new Html5QrcodeScanner("qr-reader", config, true);
 
     scannerRef.current.render(
-      (decodedText: string, decodedResult: any) => {
+      (decodedText) => {
         setScanResult(decodedText);
         message.success("QR Code Scanned!");
-        // Optionally, stop scanning after a successful scan
-        scannerRef.current?.clear().catch((error) => console.error("Failed to clear scanner", error));
       },
-      (errorMessage: string) => {
-        // This callback is invoked in case of scan errors or no QR detected in a frame
-        console.warn("QR scan error:", errorMessage);
+      (errorMessage) => {
+        if (errorMessage.includes("No MultiFormat Readers")) return;
+        setCameraError(errorMessage);
       }
     );
 
-    // Cleanup the scanner on component unmount
+    setIsScanning(true);
+  };
+
+  const stopScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear()
+        .then(() => {
+          scannerRef.current = null;
+          setIsScanning(false);
+        })
+        .catch(error => {
+          console.error("Failed to clear scanner", error);
+          setCameraError("Failed to stop scanner");
+        });
+    }
+  };
+
+  useEffect(() => {
+    startScanner();
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch((error) => console.error("Failed to clear scanner", error));
-      }
+      stopScanner();
     };
   }, []);
+
+  const handleScanAgain = () => {
+    setScanResult(null);
+    setCameraError(null);
+    startScanner();
+  };
 
   return (
     <div style={{ padding: "20px" }}>
@@ -53,7 +72,6 @@ const QRScanner = () => {
 
       <Row justify="center" style={{ marginBottom: "24px" }}>
         <Col span={24}>
-          {/* The scanner renders into this element */}
           <div id="qr-reader" style={{ width: "100%", maxWidth: "300px", margin: "auto" }}></div>
         </Col>
       </Row>
@@ -79,14 +97,10 @@ const QRScanner = () => {
         <Col>
           <Button
             type="primary"
-            onClick={() => {
-              // Reset the scan result and reinitialize the scanner by reloading the page.
-              // You could also call a function to reinitialize the scanner without a full reload.
-              setScanResult(null);
-              window.location.reload();
-            }}
+            onClick={handleScanAgain}
+            disabled={isScanning}
           >
-            Scan Again
+            {scanResult ? "Scan Again" : "Scan"}
           </Button>
         </Col>
       </Row>
