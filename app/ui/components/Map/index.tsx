@@ -25,7 +25,7 @@ const fakeData: MapItem[] = [
   {
     id: 1,
     x: 10,
-    y: 50,
+    y: 5,
     address: "Fake Address",
     name: "Fake Parking Lot",
     spaces: [
@@ -53,6 +53,14 @@ const fakeData: MapItem[] = [
         space_type: "OWNED",
         status: "DISABLE",
       },
+      {
+        id: 25,
+        x: 5,
+        y: 5,
+        type: "PLACE",
+        space_type: "ARENT",
+        status: "AVAILABLE",
+      },
       // Add more spaces as needed...
     ],
   },
@@ -70,7 +78,7 @@ const ParkingMap = () => {
 
   // When a space is clicked, set it as the selectedSpace.
   const handleSpaceClick = (space: SpaceItem) => {
-    if (space.status !== "BLOCKED") {
+    if (space.status == "AVAILABLE") {
       setSelectedSpace(space);
     }
   };
@@ -162,10 +170,11 @@ const ParkingMap = () => {
                       style={{
                         flex: 1,
                         minWidth: spaceWidth,
-                        height: 100,
+                        height: 50,
+                        width: 50,
                         backgroundColor: color,
                         borderRadius: '10px',
-                        cursor: space && space.status !== "DISABLE" ? 'pointer' : 'default',
+                        cursor: space && space.status == "AVAILABLE" ? 'pointer' : 'default',
                         transition: 'all 0.2s',
                         position: 'relative',
                         boxSizing: 'border-box',
