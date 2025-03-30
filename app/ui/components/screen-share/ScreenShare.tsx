@@ -61,7 +61,7 @@ const ScreenShare = () => {
     const processFrames = async (): Promise<void> => {
       while (isSharing) {
         if (isProcessing) {
-          await new Promise((resolve) => setTimeout(resolve, 10)); // Prevent CPU overload
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Prevent CPU overload
           continue;
         }
 
@@ -69,7 +69,7 @@ const ScreenShare = () => {
         await captureAndSendFrame();
         isProcessing = false;
 
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Maintain interval timing
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Maintain interval timing
       }
     };
 
