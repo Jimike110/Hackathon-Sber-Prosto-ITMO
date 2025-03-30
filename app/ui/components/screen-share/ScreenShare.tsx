@@ -98,10 +98,10 @@ const ScreenShare = () => {
     canvas.toBlob(async (blob) => {
       if (!blob) return;
       const formData = new FormData();
-      formData.append("frame", blob, "screenshot.jpg");    
+      formData.append("image", blob, "screenshot.jpg");    
 
       try {
-        const response = await fetch("http://localhost:5000/process-frame", {
+        const response = await fetch("http://localhost:5111/api/v1/check/transport", {
           method: "POST",
           body: formData,
           headers: { "Connection": "keep-alive" },
