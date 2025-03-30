@@ -1,3 +1,4 @@
+// app/ui/components/Map/index.tsx
 import { Card } from 'antd';
 import React, { useEffect, useState } from 'react';
 import ParkingSpaceModal from '../Modal';
@@ -50,15 +51,15 @@ const ParkingMap = () => {
     }
   };
 
-  useEffect(() => {
-    getMap(); // Fetch data once on mount
+  // useEffect(() => {
+  //   getMap(); // Fetch data once on mount
 
-    const interval = setInterval(() => {
-      getMap(); // Fetch data every second
-    }, 1000);
+  //   const interval = setInterval(() => {
+  //     getMap(); // Fetch data every second
+  //   }, 1000);
 
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+  //   return () => clearInterval(interval); // Cleanup on unmount
+  // }, []);
 
   const lot = map[0];
   const maxX = lot ? lot.x : 0;

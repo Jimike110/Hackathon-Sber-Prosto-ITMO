@@ -1,3 +1,4 @@
+// app/ui/components/screen-share/ScreenShare.tsx
 import {useEffect, useRef, useState} from 'react';
 import '../styles/ScreenShare.css';
 

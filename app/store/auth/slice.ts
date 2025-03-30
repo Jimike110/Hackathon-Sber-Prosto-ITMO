@@ -1,30 +1,34 @@
-// app/store/auth/slice.ts
+// ./app/store/auth/slice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Fetch user role after login
+// Async thunk to fetch user role from the backend using the JWT.
 export const fetchUserRole = createAsyncThunk(
   "auth/fetchUserRole",
   async (token: string, { rejectWithValue }) => {
     try {
-      const response = await fetch("/user/me", {
+      console.log(token);
+      const response = await fetch("http://localhost:5000/user/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Failed to fetch user details");
-
+      if (!response.ok) {
+        console.log("error")
+        throw new Error("Failed to fetch user details");
+      }
       const user = await response.json();
       return user.role; // Expecting role from backend
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-const authSlice = createSlice({
+// Create the auth slice and export it as a named export
+export const authSlice = createSlice({
   name: "auth",
   initialState: {
     isAuthenticated: false,
-    token: null,
-    role: null,
+    token: null as string | null,
+    role: null as string | null,
   },
   reducers: {
     loginSuccess: (state, action) => {
@@ -45,6 +49,4 @@ const authSlice = createSlice({
 });
 
 export const { loginSuccess, logout } = authSlice.actions;
-// export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
-export const selectUserRole = (state) => state.auth.role;
-export default authSlice;
+export default authSlice.reducer;

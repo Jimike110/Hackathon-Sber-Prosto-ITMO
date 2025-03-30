@@ -28,7 +28,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <Card title="Register">
         <Form
           name="register"

@@ -1,3 +1,5 @@
+// app/ui/components/QRScanner/index.tsx
+
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, Row, Typography, message } from "antd";
 import { Html5QrcodeScanner } from "html5-qrcode";

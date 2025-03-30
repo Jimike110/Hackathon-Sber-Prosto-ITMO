@@ -1,9 +1,8 @@
-// app/pages/Auth/LoginPage.tsx
-
-import {Button, Card, Form, Input} from 'antd';
-import {Link, useNavigate} from 'react-router-dom';
-import {useUsers} from '@/app/hooks/useUsers';
-// import './styles.module.scss'
+// ./app/pages/Auth/LoginPage.tsx
+import { Button, Card, Form, Input } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUsers } from '@/app/hooks/useUsers';
+import React from 'react';
 
 interface LoginForm {
   email: string;
@@ -24,7 +23,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <Card title="Login">
         <Form
           name="login"
@@ -34,17 +33,17 @@ export const LoginPage = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{required: true, message: 'Please input your email!'}]}
+            rules={[{ required: true, message: 'Please input your email!' }]}
           >
-            <Input/>
+            <Input />
           </Form.Item>
 
           <Form.Item
             label="Password"
             name="password"
-            rules={[{required: true, message: 'Please input your password!'}]}
+            rules={[{ required: true, message: 'Please input your password!' }]}
           >
-            <Input.Password/>
+            <Input.Password />
           </Form.Item>
 
           <Form.Item>
@@ -57,4 +56,4 @@ export const LoginPage = () => {
       </Card>
     </div>
   );
-}; 
+};

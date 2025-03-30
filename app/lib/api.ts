@@ -16,17 +16,33 @@ const api: AxiosInstance = axios.create({
   headers: COMMON_HEADERS,
 });
 
-// Request interceptor for adding auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('auth.accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// app/lib/api.ts - Request interceptor
+// api.interceptors.request.use(
+//   (config) => {
+//     const authData = localStorage.getItem('persist:root');
+
+//     if (authData) {
+//       try {
+//         // Parse the JSON string
+//         const parsedAuth = JSON.parse(authData);
+//         const authObject = JSON.parse(parsedAuth.auth); // Parse the `auth` JSON string
+        
+//         // Get the token
+//         const token = authObject.token;
+//         console.log("Extracted Token:", token);
+        
+//         if (token) {
+//           config.headers.Authorization = `Bearer ${token}`;
+//         }
+//       } catch (error) {
+//         console.error("Error parsing auth data:", error);
+//       }
+//     }
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
 
 // Response interceptor for handling errors
 api.interceptors.response.use(

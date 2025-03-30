@@ -1,15 +1,17 @@
-// src/components/Layout/MainLayout.tsx
+// app/components/Layout/MainLayout.tsx
 import React, { useState } from 'react';
-import { Layout } from 'antd';
+import { Button, Layout } from 'antd';
 import Sidebar from '../Navigation/Sidebar';
 import { Outlet, useLocation } from 'react-router-dom';
 import Title from 'antd/es/typography/Title';
+import { useLogout } from '@/app/hooks/useLogout';
 
 const { Header, Content, Footer, Sider } = Layout;
 
 const MainLayout: React.FC<{ title?: string }> = ({ title }) => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+    const { logoutUser } = useLogout();
   // const matches = useMatches();
 
   // Get title from route state or prop
@@ -20,6 +22,7 @@ const MainLayout: React.FC<{ title?: string }> = ({ title }) => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
         <div className="logo" style={{ height: '32px', margin: '16px', background: 'rgba(255,255,255,0.3)' }} />
+        <Button onClick={logoutUser}>Logout</Button>
         <Sidebar />
       </Sider>
       <Layout>

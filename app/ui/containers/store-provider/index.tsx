@@ -1,3 +1,4 @@
+// app/ui/containers/store-provide/index.tsx
 'use client'
 import {type ReactNode} from 'react'
 import {Provider} from 'react-redux'

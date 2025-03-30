@@ -1,0 +1,2251 @@
+----- File: ./app/App.css -----
+/* app/App.css */
+#root {
+  margin: 0 auto;
+}
+
+
+
+.card {
+  padding: 2em;
+}
+
+
+----- File: ./app/App.tsx -----
+// app/App.tsx
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './ui/components/Layout/MainLayout';
+import { LoginPage } from './pages/Auth/LoginPage';
+import { RegisterPage } from './pages/Auth/RegisterPage';
+import WorkerLandingPage from './pages/Worker/WorkerLandingPage';
+import Map from './ui/components/Map';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StoreProvider } from './ui/containers/store-provider';
+import { AuthProvider } from './ui/containers/auth-provider';
+import AddVehiclePage from './pages/Worker/AddVehiclePage';
+import ScreenShare from './ui/components/screen-share/ScreenShare';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import QRScanner from './ui/components/QRScanner';
+import MyGuests from './pages/Worker/MyGuests';
+import { AddGuest } from './pages/Worker/AddGuest';
+import ProtectedRoute from './ui/components/ProtectedRoute';  // Import ProtectedRoute
+
+const queryClient = new QueryClient();
+
+const App: React.FC = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <StoreProvider>
+        <AuthProvider>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* Protected Routes */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<Map />} handle={{ title: 'Parking Map Overview' }} />
+
+              {/* Worker Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
+                <Route path="worker">
+                  <Route index element={<WorkerLandingPage />} handle={{ title: 'My Vehicles' }} />
+                  <Route path="add-vehicle" element={<AddVehiclePage />} handle={{ title: 'Add New Vehicle' }} />
+                  <Route path="guests">
+                    <Route index element={<MyGuests />} handle={{ title: 'My Guests' }} />
+                    <Route path="add" element={<AddGuest />} handle={{ title: 'Add Guest' }} />
+                  </Route>
+                </Route>
+              </Route>
+
+              {/* Admin Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="admin">
+                  <Route index element={<AdminDashboard />} handle={{ title: 'Administration Panel' }} />
+                  <Route path="qr" element={<QRScanner />} handle={{ title: 'QR Scanner' }} />
+                  <Route path="screen" element={<ScreenShare />} handle={{ title: 'Screen Sharing' }} />
+                </Route>
+              </Route>
+
+              {/* Guest Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["guest"]} />}>
+                <Route path="guest" element={<div>Guest Dashboard</div>} handle={{ title: 'Guest Access' }} />
+              </Route>
+
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </StoreProvider>
+    </QueryClientProvider>
+  );
+};
+
+export default App;
+
+
+----- File: ./app/assets/react.svg -----
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+
+----- File: ./app/hooks/useUsers.ts -----
+// app/hooks/useUsers.ts
+import {DefaultError, useMutation} from '@tanstack/react-query';
+import {SuccessfulAuth} from "@/app/types";
+import { loginSuccess, fetchUserRole, } from "@/app/store/auth";
+import {useAppDispatch} from "@/app/store/hooks";
+
+interface AuthCredentials {
+  email: string;
+  password: string;
+}
+
+export const useUsers = () => {
+  const dispatch = useAppDispatch()
+
+  const loginUser = async (credentials) => {
+    try {
+      const response = await fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
+  
+      if (!response.ok) throw new Error("Login failed");
+  
+      const { access_token } = await response.json();
+      dispatch(loginSuccess({ token: access_token }));
+  
+      // Fetch and store user role
+      dispatch(fetchUserRole(access_token));
+  
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const registerUser = useMutation<SuccessfulAuth, DefaultError, AuthCredentials>({
+    mutationFn: async (credentials: AuthCredentials) => {
+      // const response = await axios.post(`${BASE_URL}${API_Endpoints.USERS_REGISTER}`, credentials);
+      // return response.data;
+      return {
+        access_token: "fake_token",
+      } as SuccessfulAuth
+    },
+    onSuccess: (data) => {
+      dispatch(setAccessToken(data.access_token));
+    }
+  });
+
+  return { loginUser, registerUser };
+};
+
+
+----- File: ./app/lib/api.ts -----
+// app/lib/api.ts
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import { useEffect, useState } from 'react';
+
+// Define your API base URL from environment variables
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/';
+
+// Define common headers
+const COMMON_HEADERS = {
+  'Content-Type': 'application/json',
+};
+
+// Create Axios instance
+const api: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  headers: COMMON_HEADERS,
+});
+
+// Request interceptor for adding auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth.accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for handling errors
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    const errorMessage = error.response?.data?.message || 'An error occurred';
+    return Promise.reject({
+      message: errorMessage,
+      status: error.response?.status,
+    });
+  }
+);
+
+// Generic GET function
+export const fetchData = async <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<T> => {
+  const response: AxiosResponse<T> = await api.get(url, config);
+  return response.data;
+};
+
+// Generic POST function
+export const postData = async <T, U>(
+  url: string,
+  data: U,
+  config?: AxiosRequestConfig
+): Promise<T> => {
+  const response: AxiosResponse<T> = await api.post(url, data, config);
+  return response.data;
+};
+
+// Custom hook for GET requests
+export const useFetch = <T>(url: string, config?: AxiosRequestConfig) => {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await api.get<T>(url, config);
+        setData(result.data);
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [url, config]);
+
+  return { data, loading, error };
+};
+
+// Custom hook for POST requests
+export const usePost = <T, U>() => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [response, setResponse] = useState<T | null>(null);
+
+  const executePost = async (url: string, data: U, config?: AxiosRequestConfig) => {
+    setLoading(true);
+    try {
+      const result = await api.post<T>(url, data, config);
+      setResponse(result.data);
+      return result.data;
+    } catch (err) {
+      setError(err as Error);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { executePost, response, loading, error };
+};
+
+// Error type guard
+export function isApiError(error: unknown): error is ApiError {
+  return (error as ApiError).message !== undefined;
+}
+
+// Type definitions
+interface ApiError {
+  message: string;
+  status?: number;
+}
+
+export type { ApiError };
+
+----- File: ./app/main.tsx -----
+// app/main.tsx
+import {StrictMode} from 'react'
+import {createRoot} from 'react-dom/client'
+import {BrowserRouter} from 'react-router-dom'
+import '@/styles/reset.css'
+import '@/styles/globals.css'
+import App from "@/app/App";
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App/>
+    </BrowserRouter>,
+  </StrictMode>,
+)
+
+
+----- File: ./app/pages/Admin/AdminDashboard.tsx -----
+// // app/pages/Admin/AdminDashboard.tsx
+// import React from 'react';
+// import { Card, Typography } from 'antd';
+
+// const { Title } = Typography;
+
+// const AdminDashboard: React.FC = () => {
+//   return (
+//     <Card>
+//       <Title level={2}>Admin Dashboard</Title>
+//       <p>Admin related content goes here.</p>
+//     </Card>
+//   );
+// };
+
+// export default AdminDashboard;
+
+
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import { TimePicker } from "antd";
+// import "antd/dist/antd.css";
+// import "./index.css";
+import moment from "moment";
+
+const TimeComponent = () => {
+  const [selectedTime, setSelectedTime] = useState(moment());
+  const disabledHours = () => {
+    const hours = [];
+    const currentHour = moment().hour();
+
+    for (let i = currentHour + 1; i <= 24; i++) {
+      hours.push(i);
+    }
+
+    return hours;
+  };
+
+  const disabledMinutes = (selectedHour) => {
+    const minutes = [];
+    const currentMinute = moment().minute();
+    if (selectedHour === moment().hour()) {
+      for (let i = currentMinute + 1; i <= 60; i++) {
+        minutes.push(i);
+      }
+    }
+    return minutes;
+  };
+
+  const onSelect = (time) => {
+    if (time.isAfter(moment())) {
+      console.log("ping");
+      setSelectedTime(moment());
+      return;
+    }
+
+    setSelectedTime(time);
+  };
+
+  return (
+    <TimePicker
+      onSelect={onSelect}
+      disabledHours={disabledHours}
+      disabledMinutes={disabledMinutes}
+      format="h:mm a"
+      value={selectedTime}
+      style={{ width: "100%" }}
+      use12Hours={true}
+    />
+  );
+};
+
+// ReactDOM.render(<TimeComponent />, document.getElementById("root"));
+
+export default TimeComponent
+
+----- File: ./app/pages/Auth/LoginPage.tsx -----
+// app/pages/Auth/LoginPage.tsx
+
+import {Button, Card, Form, Input} from 'antd';
+import {Link, useNavigate} from 'react-router-dom';
+import {useUsers} from '@/app/hooks/useUsers';
+// import './styles.module.scss'
+
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+export const LoginPage = () => {
+  const navigate = useNavigate();
+  const { loginUser } = useUsers();
+
+  const onFinish = async (values: LoginForm) => {
+    try {
+      await loginUser.mutateAsync(values);
+      navigate('/');
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <Card title="Login">
+        <Form
+          name="login"
+          onFinish={onFinish}
+          layout="vertical"
+        >
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[{required: true, message: 'Please input your email!'}]}
+          >
+            <Input/>
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{required: true, message: 'Please input your password!'}]}
+          >
+            <Input.Password/>
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+        <p>Don't have an account? <Link to={"/register"}>Register</Link></p>
+      </Card>
+    </div>
+  );
+}; 
+
+----- File: ./app/pages/Auth/RegisterPage.tsx -----
+// app/pages/Auth/RegisterPage.tsx
+
+import {Button, Card, Form, Input} from 'antd';
+import {Link, useNavigate} from 'react-router-dom';
+import {useUsers} from '@/app/hooks/useUsers';
+// import './styles.modules.scss'
+
+interface RegisterForm {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export const RegisterPage = () => {
+  const navigate = useNavigate();
+  const { registerUser } = useUsers();
+
+  const onFinish = async (values: RegisterForm) => {
+    try {
+      await registerUser.mutateAsync({
+        email: values.email,
+        password: values.password,
+      });
+      navigate("/")
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
+  };
+
+  return (
+    <div className={styles.container}>
+      <Card title="Register">
+        <Form
+          name="register"
+          onFinish={onFinish}
+          layout="vertical"
+        >
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: 'Please input your email!' },
+              { type: 'email', message: 'Please enter a valid email!' }
+            ]}
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              { required: true, message: 'Please input your password!' },
+              { min: 6, message: 'Password must be at least 6 characters!' }
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item
+            label="Confirm Password"
+            name="confirmPassword"
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('Passwords do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Register
+            </Button>
+          </Form.Item>
+        </Form>
+        <p>Already have an account? <Link to={"/login"}>Log in</Link></p>
+      </Card>
+    </div>
+  );
+}; 
+
+----- File: ./app/pages/Auth/styles.modules.scss -----
+.container {
+    width: 100%;
+    max-width: 500px;
+    max-height: fit-content;
+  }
+
+----- File: ./app/pages/Guest/GuestDashboard.tsx -----
+// app/pages/Guest/GuestDashboard.tsx
+import React from 'react';
+import { Card, Typography } from 'antd';
+
+const { Title } = Typography;
+
+const GuestDashboard: React.FC = () => {
+  return (
+    <Card>
+      <Title level={2}>Guest Dashboard</Title>
+      <p>Guest related content goes here.</p>
+    </Card>
+  );
+};
+
+export default GuestDashboard;
+
+
+----- File: ./app/pages/Home/Home.tsx -----
+// app/pages/Home/Home.tsx
+import React from 'react';
+import { Card, Typography } from 'antd';
+
+const { Title, Paragraph } = Typography;
+
+const Home: React.FC = () => {
+  return (
+    <Card>
+      <Title>Welcome to the Car Parking System</Title>
+      <Paragraph>
+        Use the sidebar to navigate through your dashboard.
+      </Paragraph>
+    </Card>
+  );
+};
+
+export default Home;
+
+
+----- File: ./app/pages/Worker/AddGuest.tsx -----
+// app/pages/Worker/AddGuest.tsx
+
+import { Button, Card, DatePicker, Form, Input, Select } from 'antd';
+import Title from 'antd/es/typography/Title';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { RangePickerProps } from 'antd/es/date-picker';
+import { postData } from '@/app/lib/api';
+
+dayjs.extend(customParseFormat);
+
+const disabledDate: RangePickerProps['disabledDate'] = (current) => {
+  if (!current) return false;
+  return current.isBefore(dayjs().startOf("day"));
+};
+
+export const AddGuest = () => {
+  const navigate = useNavigate();
+  const [guests, setGuests] = useState<any>(null);
+
+  const onFinish = async (values: any) => {
+    try {
+      const payload = {
+        ...values,
+        arrival: values.arrival.toISOString(), // Ensure date is in a proper format
+      };
+
+      const data = await postData(`/pass/guest`, payload);
+      console.log("API Response for Guest Booking:", data);
+
+      setGuests(data);
+      navigate('/worker/guests'); // Navigate only after success
+    } catch (error) {
+      console.error("Error submitting guest data:", error);
+    }
+  };
+
+  return (
+    <Card style={{ padding: '24px' }}>
+      <Title level={2}>Add Guest</Title>
+      <Form layout="vertical" onFinish={onFinish}>
+        <Form.Item 
+          label="Name" 
+          name="name" 
+          rules={[{ required: true, message: 'Please enter the guest name' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item 
+          label="Phone" 
+          name="phone" 
+          rules={[{ required: false, message: 'Please enter their phone number' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item 
+          label="Arrival" 
+          name="arrival" 
+          rules={[{ required: true, message: 'Please choose an arrival date and time' }]}
+        >
+          <DatePicker 
+            showTime
+            disabledDate={disabledDate}
+            showSecond={false}
+            minuteStep={15}
+          />
+        </Form.Item>
+        <Form.Item 
+          label="Duration" 
+          name="duration" 
+          rules={[{ required: true, message: 'Please choose a duration' }]}
+        >
+          <Select 
+            options={[
+              { value: 5, label: '5 minutes' },
+              { value: 10, label: '10 minutes' },
+              { value: 3600, label: '1 day' },
+              { value: 43800, label: '1 month' }
+            ]}
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
+  );
+};
+
+
+----- File: ./app/pages/Worker/AddVehiclePage.tsx -----
+// app/pages/Worker/AddVehiclePage.tsx
+import React, { useState } from 'react';
+import { Form, Input, Button, Card, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
+
+const { Title } = Typography;
+
+const AddVehiclePage: React.FC = () => {
+  const navigate = useNavigate();
+  const [cars, setCars] = useState();
+
+  const onFinish = (values: any) => {
+    console.log('Vehicle Added:', values);
+    setCars(values)
+    // After successfully adding a vehicle, navigate back to the landing page.
+    navigate('/worker');
+  };
+
+  return (
+    <Card style={{ padding: '24px' }}>
+      <Title level={2}>Add Vehicle</Title>
+      <Form layout="vertical" onFinish={onFinish}>
+      <Form.Item 
+          label="Vehicle Manufacturer" 
+          name="manufacturer" 
+          rules={[{ required: true, message: 'Please enter the vehicle manufacturer' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item 
+          label="Vehicle Model" 
+          name="model" 
+          rules={[{ required: true, message: 'Please enter the vehicle model' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item 
+          label="Plate Number" 
+          name="plate" 
+          rules={[{ required: true, message: 'Please enter the plate number' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item 
+          label="Color" 
+          name="color" 
+          rules={[{ required: true, message: 'Please enter the vehicle color' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            Submit
+          </Button>
+        </Form.Item>
+      </Form>
+    </Card>
+  );
+};
+
+export default AddVehiclePage;
+
+
+----- File: ./app/pages/Worker/MyGuests.tsx -----
+// app/pages/Worker/MyGuests.tsx
+import { Button, Col, Row, Table, Tag } from 'antd'
+import Title from 'antd/es/typography/Title';
+import React from 'react'
+import { useNavigate } from 'react-router-dom';
+
+const MyGuests = () => {
+
+    const navigate = useNavigate();
+
+    const dummmyGuests = [
+        {
+          key: "1",
+          name: "Ivan",
+          phone: "+7 (954) 9025 902",
+          date: "ABC-123",
+          showPass: "Silver",
+          active: true,
+        },
+        {
+          key: "2",
+          name: "Anton",
+          phone: "+7 (925) 8405 123",
+          date: "XYZ-789",
+          showPass: "Black",
+        },
+        {
+          key: "3",
+          name: "Michael",
+          phone: "+7 (926) 7684 223",
+          date: "DEF-456",
+          showPass: "White",
+        },
+      ];
+    
+      const columns = [
+        { title: "Name", dataIndex: "name", key: "name" },
+        { title: "Phone", dataIndex: "phone", key: "phone" },
+        { title: "Date", dataIndex: "date", key: "date" },
+        {
+            title: 'Show Pass',
+            key: "showPass",
+            render: (record: any) => 
+                record.showPass && record.active ? (
+                    <Button color='green' href=''>Show</Button>
+                ) : (
+                    <Button color='red' disabled>Expired</Button>
+                )
+        },
+        {
+          title: "Status",
+          key: "active",
+          render: (record: any) =>
+            record.active ? (
+              <Tag color="green">Active</Tag>
+            ) : (
+              <Tag color="default">Inactive</Tag>
+            ),
+        },
+      ];
+
+
+  return (
+    <div>
+        <Row justify={'space-between'} style={{ marginBottom: 20}}>
+            <Col>
+                <Title level={4}>My Guests</Title>
+            </Col>
+            <Col>
+            <Button onClick={() => navigate("/worker/guests/add")}>Add Guest</Button>
+            </Col>
+        </Row>
+        <Table
+              dataSource={dummmyGuests}
+              columns={columns}
+              pagination={false}
+              rowClassName={(record) => (record.active ? "active-row" : "")}
+            />
+    </div>
+  )
+}
+
+export default MyGuests
+
+----- File: ./app/pages/Worker/WorkerDashboard.tsx -----
+// app/pages/Worker/WorkerDashboard.tsx
+import React, { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import AddVehiclePage from './AddVehiclePage';
+
+interface WorkerDashboardProps {}
+
+interface Vehicle {
+  key: string,
+  manufacturer: string,
+  model: string,
+  plate: string,
+  color: string,
+  active: boolean
+}
+
+
+const WorkerDashboard: React.FC<WorkerDashboardProps> & {
+  AddVehiclePage: typeof AddVehiclePage;
+} = () => {
+  const [cars, setCars] = useState<Vehicle[]>([]);
+
+  useEffect(() => {
+    const initialCars = [
+      { key: '1', manufacturer: "Toyota", model: 'Toyota Camry', plate: 'ABC-123', color: 'Silver', active: true },
+      { key: '2', manufacturer: "Honda", model: 'Honda Civic', plate: 'XYZ-789', color: 'Black', active: false },
+      { key: '3', manufacturer: "Ford", model: 'Ford Focus', plate: 'DEF-456', color: 'White', active: false },
+    ];
+    setCars(initialCars);
+  }, [])
+  return <Outlet context={{ cars, setCars }}/>;
+};
+
+// Attach AddVehiclePage as a property so it can be used in the route definition if needed.
+WorkerDashboard.AddVehiclePage = AddVehiclePage;
+
+export default WorkerDashboard;
+
+
+----- File: ./app/pages/Worker/WorkerLandingPage.tsx -----
+// app/pages/Worker/WorkerLandingPage.tsx
+import React, { useState } from "react";
+import { Card, Table, Button, Typography, Row, Col, Tag, Space, Form, FormProps, Input, Checkbox } from "antd";
+import { useNavigate, useOutletContext } from "react-router-dom";
+
+type FieldType = {
+  firstName?: string;
+  lastName?: string;
+  middleName?: string;
+  phone?: string;
+};
+
+const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
+  console.log('Success:', values);
+};
+
+const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
+  console.log('Failed:', errorInfo);
+};
+
+interface WorkerLandingContext {
+  cars: [];
+}
+
+const { Title, Text } = Typography;
+
+const WorkerLandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  // const { cars } = useOutletContext<WorkerLandingContext>();
+
+  // Dummy data for vehicles
+  const dummyCars = [
+    {
+      key: "1",
+      manufacturer: "Toyota",
+      model: "Toyota Camry",
+      plate: "ABC-123",
+      color: "Silver",
+      active: true,
+    },
+    {
+      key: "2",
+      manufacturer: "Honda",
+      model: "Honda Civic",
+      plate: "XYZ-789",
+      color: "Black",
+    },
+    {
+      key: "3",
+      manufacturer: "Ford",
+      model: "Ford Focus",
+      plate: "DEF-456",
+      color: "White",
+    },
+  ];
+
+  const columns = [
+    { title: "Manufacturer", dataIndex: "manufacturer", key: "manufacturer" },
+    { title: "Model", dataIndex: "model", key: "model" },
+    { title: "Plate Number", dataIndex: "plate", key: "plate" },
+    { title: "Color", dataIndex: "color", key: "color" },
+    {
+      title: "Status",
+      key: "active",
+      render: (record: any) =>
+        record.active ? (
+          <Tag color="green">Active</Tag>
+        ) : (
+          <Tag color="default">Inactive</Tag>
+        ),
+    },
+  ];
+
+  const activeVehicle = dummyCars.find((car) => car.active);
+
+  return (
+    <div style={{ padding: "24px", background: "#f0f2f5", minHeight: "100vh" }}>
+      <Row justify="space-between"
+            align="middle"
+            style={{ marginBottom: "24px" }}>
+        <Col>
+          <Form
+            name="basic"
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            style={{ maxWidth: 600 }}
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            onFinishFailed={onFinishFailed}
+            autoComplete="off"
+          >
+            <Form.Item<FieldType>
+              label="Имя"
+              name="firstName"
+              rules={[
+                { required: true, message: "Please input your username!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              label="Фамилия"
+              name="lastName"
+              rules={[
+                { required: true, message: "Please input your password!" },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              name="middleName"
+              valuePropName="checked"
+              label="Отчество"
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              name="phone"
+              valuePropName="checked"
+              label="Телефон"
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item label={null}>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </Col>
+        
+        <Col>
+          <Row
+            justify="space-between"
+            align="middle"
+            style={{ marginBottom: "24px" }}
+          >
+            <Col>
+              <Title level={2}>My Vehicles</Title>
+              <Text type="secondary">
+                Below is a list of your currently registered vehicles.
+              </Text>
+            </Col>
+            <Col>
+              <Button
+                type="primary"
+                size="large"
+                onClick={() => navigate("/worker/add-vehicle")}
+              >
+                Add Vehicle
+              </Button>
+            </Col>
+          </Row>
+
+          {activeVehicle && (
+            <Card
+              bordered={false}
+              style={{
+                marginBottom: 24,
+                borderRadius: 8,
+                backgroundColor: "#e6f7ff",
+                border: "1px solid #91d5ff",
+              }}
+            >
+              <Title level={5} style={{ marginBottom: 8 }}>
+                Current Active Vehicle
+              </Title>
+              <Text strong>{activeVehicle.model}</Text> ·
+              <Text type="secondary" style={{ margin: "0 8px" }}>
+                {activeVehicle.plate}
+              </Text>{" "}
+              ·<Tag color="blue">{activeVehicle.color}</Tag>
+            </Card>
+          )}
+
+          <Card
+            bordered={false}
+            style={{
+              borderRadius: 8,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+              overflow: "hidden",
+            }}
+          >
+            <Table
+              dataSource={dummyCars}
+              columns={columns}
+              pagination={false}
+              rowClassName={(record) => (record.active ? "active-row" : "")}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <style>
+        {`
+          .active-row {
+            background-color: #f6ffed;
+          }
+          .active-row:hover {
+            background-color: #e6f7d7 !important;
+          }
+        `}
+      </style>
+    </div>
+  );
+};
+
+export default WorkerLandingPage;
+
+
+----- File: ./app/store/api/index.ts -----
+// app/store/api/index.ts
+import {getBaseUrl} from "@/app/utils/getBaseUrl";
+
+export const BASE_URL = getBaseUrl()
+
+export enum API_Endpoints {
+  USERS_REGISTER = '/v1/users/register',
+  USERS_LOGIN = '/v1/users/login',
+
+
+}
+
+----- File: ./app/store/auth/index.ts -----
+// app/store/auth/index.ts
+export * from './slice'
+export * from './selectors'
+
+
+----- File: ./app/store/auth/selectors.ts -----
+// app/store/auth/selectors.ts
+import {AppState} from "@/app/store/types";
+
+export const selectAccessToken = (state: AppState) => state.auth.accessToken
+export const selectIsAuthenticated = (state: AppState) => !!state.auth.accessToken
+
+----- File: ./app/store/auth/slice.ts -----
+// app/store/auth/slice.ts
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+// Fetch user role after login
+export const fetchUserRole = createAsyncThunk(
+  "auth/fetchUserRole",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/user/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch user details");
+
+      const user = await response.json();
+      return user.role; // Expecting role from backend
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const authSlice = createSlice({
+  name: "auth",
+  initialState: {
+    isAuthenticated: false,
+    token: null,
+    role: null,
+  },
+  reducers: {
+    loginSuccess: (state, action) => {
+      state.isAuthenticated = true;
+      state.token = action.payload.token;
+    },
+    logout: (state) => {
+      state.isAuthenticated = false;
+      state.token = null;
+      state.role = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchUserRole.fulfilled, (state, action) => {
+      state.role = action.payload;
+    });
+  },
+});
+
+export const { loginSuccess, logout } = authSlice.actions;
+// export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectUserRole = (state) => state.auth.role;
+export default authSlice;
+
+
+----- File: ./app/store/hooks.ts -----
+// app/store/hooks.ts
+import {TypedUseSelectorHook, useDispatch, useSelector} from 'react-redux'
+import type {AppDispatch, RootState} from './index'
+
+export const useAppDispatch = () => useDispatch<AppDispatch>()
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector 
+
+----- File: ./app/store/index.ts -----
+// app/store/index.ts
+import {configureStore, ThunkDispatch, UnknownAction, combineReducers} from '@reduxjs/toolkit'
+import {persistStore, persistReducer} from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
+import {authSlice} from "./auth";
+import {userSlice} from "./user";
+
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['auth'] // Only persist auth state
+}
+
+const rootReducer = combineReducers({
+  auth: authSlice.reducer,
+  user: userSlice.reducer,
+})
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+
+const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+      },
+    }),
+})
+
+export const persistor = persistStore(store)
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = ThunkDispatch<RootState, unknown, UnknownAction>
+export type AppStore = typeof store
+
+export { store }
+
+----- File: ./app/store/types.ts -----
+// app/store/types.ts
+import {ThunkDispatch, UnknownAction} from '@reduxjs/toolkit'
+
+export type CreateStoreReturn = ReturnType<typeof import('./index').createStore>
+
+export type AppState = ReturnType<CreateStoreReturn['getState']>
+export type AppDispatch = ThunkDispatch<AppState, undefined, UnknownAction>
+
+
+----- File: ./app/store/user/index.ts -----
+// app/store/user/index.ts
+export * from './slice'
+export * from './selectors'
+
+
+----- File: ./app/store/user/selectors.ts -----
+// app/store/user/selectors.ts
+import {AppState} from "@/app/store";
+
+export const selectedUser = (state: AppState) => state.user.user
+
+----- File: ./app/store/user/slice.ts -----
+// app/store/user/slice.ts
+import {createSlice, PayloadAction} from '@reduxjs/toolkit'
+
+export const storeKey = '@redux/user'
+
+export interface User {
+  id: string
+  email: string
+  name: string
+}
+
+export interface UserState {
+  user: User | null
+}
+
+const initialState: UserState = {
+  user: null,
+}
+
+export const userSlice = createSlice({
+  name: 'user',
+  initialState,
+  reducers: {
+    setUser: (state, action: PayloadAction<User | null>) => {
+      state.user = action.payload
+    },
+  },
+})
+
+export const { setUser } = userSlice.actions
+
+
+
+----- File: ./app/types.ts -----
+// app/types.ts
+export interface User {
+  id: number
+  email: string;
+}
+
+export interface SuccessfulAuth {
+  access_token: string;
+  is_admin: boolean;
+}
+
+export interface Transports {
+  items: Transport[]
+  total: number
+}
+
+export interface Transport {
+  id: number;
+  manufacturer: string;
+  model: string;
+  color: string;
+  number: string;
+}
+
+export interface Code {
+  code: number;
+}
+
+export interface GuestLink {
+  guest_link: string
+}
+
+----- File: ./app/ui/components/Layout/MainLayout.tsx -----
+// app/components/Layout/MainLayout.tsx
+import React, { useState } from 'react';
+import { Layout } from 'antd';
+import Sidebar from '../Navigation/Sidebar';
+import { Outlet, useLocation } from 'react-router-dom';
+import Title from 'antd/es/typography/Title';
+
+const { Header, Content, Footer, Sider } = Layout;
+
+const MainLayout: React.FC<{ title?: string }> = ({ title }) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+  // const matches = useMatches();
+
+  // Get title from route state or prop
+  const pageTitle = title || location.state?.title || 'Car Parking System';
+  // const pageTitle = matches[matches.length - 1].handle?.
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+        <div className="logo" style={{ height: '32px', margin: '16px', background: 'rgba(255,255,255,0.3)' }} />
+        <Sidebar />
+      </Sider>
+      <Layout>
+        <Header style={{ background: '#fff', padding: '0 24px' }}>
+          <Title level={3} style={{ margin: 0 }}>{pageTitle}</Title>
+        </Header>
+        <Content style={{ margin: '16px' }}>
+          <Outlet />
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>Car Parking System ©{new Date().getFullYear()}</Footer>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default MainLayout;
+
+----- File: ./app/ui/components/Map/index.tsx -----
+// app/ui/components/Map/index.tsx
+import { Card } from 'antd';
+import React, { useEffect, useState } from 'react';
+import ParkingSpaceModal from '../Modal';
+import { fetchData, isApiError } from '@/app/lib/api';
+
+interface MapItem {
+  id: number;
+  x: number;
+  y: number;
+  address: string;
+  name: string;
+  spaces: SpaceItem[];
+}
+
+interface SpaceItem {
+  id: number;
+  x: number;
+  y: number;
+  type: string;
+  space_type: string;
+  status: string;
+}
+
+const ParkingMap = () => {
+  const rowSpacing = 20;
+  const spaceWidth = 10;
+  const roadColor = '#f0eded';
+
+  const [map, setMap] = useState<MapItem[]>([]);
+  const [selectedSpace, setSelectedSpace] = useState<SpaceItem | null>(null);
+
+  const handleSpaceClick = (space: SpaceItem) => {
+    if (space.status === "AVAILABLE") {
+      setSelectedSpace(space);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedSpace(null);
+  };
+
+  const getMap = async () => {
+    try {
+      const data = await fetchData<MapItem[]>("/api/parking/space/list"); // Real API request
+      setMap(data);
+    } catch (error) {
+      if (isApiError(error)) {
+        console.log("API Error: ", error.message);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getMap(); // Fetch data once on mount
+
+    const interval = setInterval(() => {
+      getMap(); // Fetch data every second
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  const lot = map[0];
+  const maxX = lot ? lot.x : 0;
+  const maxY = lot ? lot.y : 0;
+
+  const getSpaceColor = (status: string) => {
+    if (status === "AVAILABLE") return "#4CFF00";
+    else if (status === "BLOCKED") return "red";
+    else if (status === "DISABLE") return "grey";
+    return "#4CFF00";
+  };
+
+  return (
+    <>
+      {selectedSpace && (
+        <ParkingSpaceModal 
+          visible={true}
+          onClose={closeModal}
+          spaceInfo={{ row: selectedSpace.y, column: selectedSpace.x }}
+        />
+      )}
+
+      <Card style={{ padding: 16 }}>
+        <div style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          gap: rowSpacing,
+          backgroundColor: roadColor,
+          padding: 16,
+          borderRadius: 4
+        }}>
+          {Array.from({ length: maxY }).map((_, rowIndex) => (
+            <div key={rowIndex} style={{
+              display: 'flex',
+              gap: 10,
+              position: 'relative'
+            }}>
+              <div style={{
+                display: 'flex',
+                gap: 20,
+                flex: 1,
+                backgroundColor: 'transparent'
+              }}>
+                {Array.from({ length: maxX }).map((_, colIndex) => {
+                  const space = lot ? lot.spaces.find(s => s.x === colIndex + 1 && s.y === rowIndex + 1) : null;
+                  const color = space ? getSpaceColor(space.status) : "#fff";
+                  return (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      style={{
+                        flex: 1,
+                        minWidth: spaceWidth,
+                        height: 50,
+                        width: 50,
+                        backgroundColor: color,
+                        borderRadius: '10px',
+                        cursor: space && space.status === "AVAILABLE" ? 'pointer' : 'default',
+                        transition: 'all 0.2s',
+                        position: 'relative',
+                        boxSizing: 'border-box',
+                      }}
+                      onClick={() => space && handleSpaceClick(space)}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 4,
+                        right: 4,
+                        fontSize: 10,
+                        color: '#666'
+                      }}>
+                        {rowIndex + 1}-{colIndex + 1}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </>
+  );
+};
+
+export default ParkingMap;
+
+
+----- File: ./app/ui/components/Modal/index.tsx -----
+// app/ui/components/Modal/index.tsx
+
+import { fetchData, isApiError } from "@/app/lib/api";
+import { Modal, Space, Typography, DatePicker, Radio, TimePicker, Card } from "antd";
+import Title from "antd/es/typography/Title";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { useEffect, useState } from "react";
+
+dayjs.extend(customParseFormat);
+
+const { RangePicker } = DatePicker;
+const { Text } = Typography;
+
+interface ParkingSpaceModalProps {
+  visible: boolean;
+  onClose: () => void;
+  spaceInfo: {
+    row: number;
+    column: number;
+  } | null;
+}
+
+const options = [
+  { label: 'По дням', value: 'Day' },
+  { label: 'По часам', value: 'Hour' },
+];
+
+const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
+  visible,
+  onClose,
+  spaceInfo,
+}) => {
+  const [bookingType, setBookingType] = useState<'Day' | 'Hour'>('Day');
+  const [disabledDayDates, setDisabledDayDates] = useState<string[]>([]);
+  const [selectedDayRange, setSelectedDayRange] = useState<[any, any] | null>(null);
+  const [selectedHourDate, setSelectedHourDate] = useState<any>(null);
+  const [selectedHourTime, setSelectedHourTime] = useState<any>(null);
+  const [disabledHourTimes, setDisabledHourTimes] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (bookingType === 'Day') {
+      console.log("Fetching disabled dates for day booking...");
+      // Fake API response
+      // const fakeData = { forbiddenDates: ["2025-04-01", "2025-04-05"] };
+      // setDisabledDayDates(fakeData.forbiddenDates);
+
+      // Uncomment to use real API
+      
+      fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/date`)
+        .then((data) => {
+          console.log("API Response for Day Booking:", data);
+          setDisabledDayDates(data.forbiddenDates);
+        })
+        .catch((error) => console.error("Error fetching day booking data:", error));
+      
+    }
+  }, [bookingType, spaceInfo]);
+
+  const handleHourDateChange = (date: any, dateString: string) => {
+    setSelectedHourDate(date);
+    console.log("Fetching disabled hours for:", dateString);
+    
+    // Fake API response
+    // const fakeData = { forbiddenHours: dateString === "2025-04-10" ? [10, 11, 15] : [] };
+    // setDisabledHourTimes(fakeData.forbiddenHours);
+    
+    // Uncomment to use real API
+    fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/hours?day=${dateString}`)
+      .then((data) => {
+        console.log("API Response for Hour Booking:", data);
+        setDisabledHourTimes(data.forbiddenHours);
+      })
+      .catch((error) => console.error("Error fetching hour booking data:", error));
+  };
+
+  const disabledDayDate = (current: any) => {
+    if (!current) return false;
+    return current.isBefore(dayjs().startOf("day")) || disabledDayDates.includes(current.format("YYYY-MM-DD"));
+  };
+
+  const disabledHourDate = (current: any) => {
+    return current && current.isBefore(dayjs().startOf("day"));
+  };
+
+  const disabledHourTime = () => {
+    let disabled = [...disabledHourTimes];
+    if (selectedHourDate && selectedHourDate.isSame(dayjs(), "day")) {
+      const currentHour = dayjs().hour();
+      for (let i = 0; i < currentHour; i++) {
+        if (!disabled.includes(i)) disabled.push(i);
+      }
+    }
+    return { disabledHours: () => disabled.sort((a, b) => a - b) };
+  };
+
+  return (
+    <Modal
+      title={`Информация о месте`}
+      open={visible}
+      onOk={onClose}
+      onCancel={onClose}
+      width={600}
+    >
+      {spaceInfo && (
+        <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+          <div>
+            <Text>Номер ряда: {spaceInfo.column}</Text>
+            <br />
+            <Text>Номер места: {spaceInfo.row}</Text>
+          </div>
+          <Title level={5}>Выберите время бронирования</Title>
+          <Card>
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+              <Radio.Group
+                options={options}
+                onChange={(e) => setBookingType(e.target.value)}
+                value={bookingType}
+                optionType="button"
+                buttonStyle="solid"
+              />
+              {bookingType === "Day" ? (
+                <RangePicker
+                  disabledDate={disabledDayDate}
+                  onChange={(dates) => setSelectedDayRange(dates as [any, any])}
+                  format="YYYY-MM-DD"
+                  style={{ width: "100%" }}
+                />
+              ) : (
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <DatePicker
+                    disabledDate={disabledHourDate}
+                    onChange={handleHourDateChange}
+                    format="YYYY-MM-DD"
+                    style={{ width: "100%" }}
+                    placeholder="Выберите дату"
+                  />
+                  <TimePicker
+                    disabledTime={disabledHourTime}
+                    onChange={(time) => setSelectedHourTime(time)}
+                    format="HH:mm"
+                    style={{ width: "100%" }}
+                    placeholder="Выберите время"
+                    minuteStep={15}
+                  />
+                </Space>
+              )}
+            </Space>
+          </Card>
+        </Space>
+      )}
+    </Modal>
+  );
+};
+
+export default ParkingSpaceModal;
+
+
+----- File: ./app/ui/components/Navigation/Sidebar.tsx -----
+// app/ui/components/Navigation/Sidebar.tsx
+import React from 'react';
+import { Menu, QRCode } from 'antd';
+import { DashboardOutlined, CarOutlined, PlusOutlined, UserOutlined, QrcodeOutlined, MonitorOutlined, CameraOutlined } from '@ant-design/icons';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+const Sidebar: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const menuItems = [
+    { label: 'Home', key: '/', icon: <DashboardOutlined /> },
+    { label: 'My Profile', key: '/worker', icon: <CarOutlined /> },
+    { label: 'Add Vehicle', key: '/worker/add-vehicle', icon: <PlusOutlined /> },
+    { label: 'Guests', key: '/worker/guests', icon: <UserOutlined />},
+    { label: 'Admin Panel', key: '/admin', icon: <UserOutlined /> },
+    { label: "QR Checker", key: '/admin/qr', icon: <QrcodeOutlined />},
+    { label: "Screen", key: "/admin/screen", icon: <CameraOutlined />}
+  ];
+
+  const handleClick = (e: any) => {
+    navigate(e.key);
+  };
+
+  return (
+    <Menu 
+      theme="dark" 
+      mode="inline" 
+      selectedKeys={[location.pathname]}
+      onClick={handleClick}
+      items={menuItems}
+    />
+  );
+};
+
+export default Sidebar;
+
+
+----- File: ./app/ui/components/ProtectedRoute.tsx -----
+// app/ui/components/ProtectedRoute.tsx
+import { Navigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectUserRole, selectIsAuthenticated } from "@/app/store/auth";
+
+interface ProtectedRouteProps {
+  allowedRoles: string[];
+}
+
+const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userRole = useSelector(selectUserRole);
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!allowedRoles.includes(userRole)) return <Navigate to="/" replace />;
+
+  return <Outlet />;
+};
+
+export default ProtectedRoute;
+
+
+----- File: ./app/ui/components/QRScanner/index.tsx -----
+// app/ui/components/QRScanner/index.tsx
+
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Col, Row, Typography, message } from "antd";
+import { Html5QrcodeScanner } from "html5-qrcode";
+import { fetchData, isApiError } from "@/app/lib/api";
+
+const { Title, Text } = Typography;
+
+const QRScanner = () => {
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+
+  const checkAuthorization = async (qrCode: string): Promise<boolean> => {
+    try {
+      const response = await fetchData<{ validate: boolean }>(
+        `/check/pass/guest?code=${encodeURIComponent(qrCode)}`
+      );
+      return response.validate;
+    } catch (error) {
+      if (isApiError(error)) {
+        console.error("API Error:", error.message);
+        message.error("Authorization check failed");
+      }
+      return false;
+    }
+  };
+
+  const startScanner = () => {
+    if (scannerRef.current || isScanning) return;
+
+    const config = {
+      fps: 10,
+      qrbox: 250,
+      rememberLastUsedCamera: true,
+    };
+
+    scannerRef.current = new Html5QrcodeScanner("qr-reader", config, true);
+    setIsScanning(true);
+
+    scannerRef.current.render(
+      async (decodedText) => {
+        try {
+          setScanResult(decodedText);
+          const authResult = await checkAuthorization(decodedText);
+          setIsAuthorized(authResult);
+          message.success(authResult ? "Authorized!" : "Not authorized!");
+        } catch (error) {
+          setIsAuthorized(false);
+          message.error("Authorization error");
+        } finally {
+          stopScanner();
+        }
+      },
+      (errorMessage) => {
+        if (!errorMessage.includes("No MultiFormat Readers")) {
+          setCameraError(errorMessage);
+        }
+      }
+    );
+  };
+
+  const stopScanner = async () => {
+    if (!scannerRef.current) return;
+    
+    try {
+      await scannerRef.current.clear();
+    } catch (error) {
+      console.error("Failed to clear scanner:", error);
+      setCameraError("Failed to stop scanner");
+    } finally {
+      scannerRef.current = null;
+      setIsScanning(false);
+    }
+  };
+
+  useEffect(() => {
+    startScanner();
+    return () => {
+      stopScanner();
+    };
+  }, []);
+
+  const handleScanAgain = () => {
+    setScanResult(null);
+    setIsAuthorized(null);
+    setCameraError(null);
+    startScanner();
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <Row justify="center" style={{ marginBottom: 24 }}>
+        <Title level={3}>Scan QR Code</Title>
+      </Row>
+
+      <Row justify="center" style={{ marginBottom: 24 }}>
+        <Col span={24} style={{ maxWidth: 300 }}>
+          <div id="qr-reader" />
+        </Col>
+      </Row>
+
+      {scanResult && (
+        <Row justify="center" style={{ marginBottom: 16 }}>
+          <Col>
+            {isAuthorized === true && (
+              <Title level={4} type="success">AUTHORIZED</Title>
+            )}
+            {isAuthorized === false && (
+              <Title level={4} type="danger">UNAUTHORIZED</Title>
+            )}
+          </Col>
+        </Row>
+      )}
+
+      {cameraError && (
+        <Row justify="center" style={{ marginBottom: 16 }}>
+          <Text type="danger">{cameraError}</Text>
+        </Row>
+      )}
+
+      <Row justify="center">
+        <Button 
+          type="primary" 
+          onClick={handleScanAgain}
+          disabled={isScanning && !scanResult}
+          loading={isScanning && !scanResult}
+        >
+          {scanResult ? "Scan Again" : "Start Scanning"}
+        </Button>
+      </Row>
+    </div>
+  );
+};
+
+export default QRScanner;
+
+----- File: ./app/ui/components/screen-share/ScreenShare.tsx -----
+// app/ui/components/screen-share/ScreenShare.tsx
+import {useEffect, useRef, useState} from 'react';
+import '../styles/ScreenShare.css';
+
+interface ProcessFrameResponse {
+  plate: string;
+  fileSize: string;
+}
+
+const ScreenShare = () => {
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState<boolean>(false);
+  const [plateNumber, setPlateNumber] = useState<string | null>(null);
+  const [fileSize, setFileSize] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const abortControllerRef = useRef<AbortController>(new AbortController());
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    const controller = abortControllerRef.current;
+
+    const setupVideo = async (): Promise<void> => {
+      if (mediaStream && videoElement) {
+        try {
+          videoElement.srcObject = mediaStream;
+          const playPromise = videoElement.play();
+          if (controller.signal.aborted) return;
+          await playPromise;
+        } catch (error) {
+          if (error instanceof Error && error.name !== 'AbortError') {
+            setError('Error playing video: ' + error.message);
+          }
+        }
+      }
+    };
+
+    setupVideo();
+
+    return () => {
+      controller.abort();
+      abortControllerRef.current = new AbortController();
+      if (videoElement) {
+        videoElement.srcObject = null;
+      }
+    };
+  }, [mediaStream]);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current.abort();
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [mediaStream]);
+
+  useEffect(() => {
+    let isProcessing = false;
+
+    const processFrames = async (): Promise<void> => {
+      while (isSharing) {
+        if (isProcessing) {
+          await new Promise((resolve) => setTimeout(resolve, 10)); // Prevent CPU overload
+          continue;
+        }
+
+        isProcessing = true;
+        await captureAndSendFrame();
+        isProcessing = false;
+
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Maintain interval timing
+      }
+    };
+
+    if (isSharing) {
+      processFrames();
+      setIsSharing(true);
+    }
+
+    return () => setIsSharing(false);
+  }, [isSharing]);
+
+  const captureAndSendFrame = async (): Promise<void> => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    if (!context) return;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const formData = new FormData();
+      formData.append("frame", blob, "screenshot.jpg");    
+
+      try {
+        const response = await fetch("http://localhost:5000/process-frame", {
+          method: "POST",
+          body: formData,
+          headers: { "Connection": "keep-alive" },
+        });
+
+        const data: ProcessFrameResponse = await response.json();
+        setPlateNumber(data.plate);
+        setFileSize(data.fileSize);
+      } catch (error) {
+        console.error("Error sending frame:", error);
+      }
+
+      // Log form data entries
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(key, value);
+      });
+    }, "image/jpeg", 0.7);
+  };
+
+  const startScreenShare = async (): Promise<void> => {
+    setError(null);
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: 'window' },
+        audio: false,
+      });
+
+      const onTrackEnded = () => {
+        stopScreenShare();
+        stream.getTracks().forEach(track => track.removeEventListener('ended', onTrackEnded));
+      };
+
+      stream.getTracks().forEach(track => {
+        track.addEventListener('ended', onTrackEnded);
+      });
+
+      setMediaStream(stream);
+      setIsSharing(true);
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setError(err.message);
+        setIsSharing(false);
+      }
+    }
+  };
+
+  const stopScreenShare = (): void => {
+    abortControllerRef.current.abort();
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+    }
+    setMediaStream(null);
+    setIsSharing(false);
+    setError(null);
+    setPlateNumber(null);
+    setFileSize(null);
+  };
+
+  return (
+    <div className="container">
+      <h1>Screen Share Demo</h1>
+      {error && <div className="error-message">Error: {error}</div>}
+      {!isSharing ? (
+        <button className="start-button" onClick={startScreenShare}>
+          Start Screen Sharing
+        </button>
+      ) : (
+        <button className="stop-button" onClick={stopScreenShare}>
+          Stop Sharing
+        </button>
+      )}
+
+      {isSharing && (
+        <div className="video-container">
+          <video ref={videoRef} playsInline muted autoPlay className="video-element" />
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+          <div className="sharing-indicator">● Recording</div>
+        </div>
+      )}
+
+      {(plateNumber && isSharing && fileSize) && (
+        <div className="plate-result">
+          Detected Plate: <strong>{plateNumber}</strong><br />
+          File Size: <strong>{fileSize}</strong>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ScreenShare; 
+
+----- File: ./app/ui/components/sidebar/index.tsx -----
+// Sidebar.tsx
+import React from "react";
+import { Menu } from "antd";
+import type { MenuProps } from "antd";
+import {
+  PlusCircleOutlined,
+  FileOutlined,
+  CarOutlined,
+  TeamOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
+
+export type MenuItem = Required<MenuProps>['items'][number];
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+): MenuItem {
+  return { key, icon, children, label } as MenuItem;
+}
+
+const items: MenuItem[] = [
+  getItem("My Vehicles", "1", <CarOutlined />),
+  getItem("Add New Vehicle", "2", <PlusCircleOutlined />),
+  getItem("User", "sub1", <UserOutlined />, [
+    getItem("Tom", "3"),
+    getItem("Bill", "4"),
+    getItem("Alex", "5"),
+  ]),
+  getItem("Team", "sub2", <TeamOutlined />, [
+    getItem("Team 1", "6"),
+    getItem("Team 2", "8"),
+  ]),
+  getItem("Files", "9", <FileOutlined />),
+];
+
+interface SidebarProps {
+  onMenuSelect: (key: string) => void;
+  selectedKey: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onMenuSelect, selectedKey }) => {
+  return (
+    <Menu
+      theme="dark"
+      mode="inline"
+      selectedKeys={[selectedKey]}
+      items={items}
+      onClick={({ key }) => onMenuSelect(key)}
+    />
+  );
+};
+
+export default Sidebar;
+
+
+----- File: ./app/ui/components/styles/ScreenShare.css -----
+/* app/ui/components/styles/ScreenShare.css */
+.container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+  }
+  
+  button {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 1rem 0;
+  }
+  
+  .start-button {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .start-button:hover {
+    background-color: #45a049;
+  }
+  
+  .stop-button {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .stop-button:hover {
+    background-color: #da190b;
+  }
+  
+  .video-container {
+    position: relative;
+    margin: 2rem 0;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .video-element {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  
+  .sharing-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #ff4444;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .instructions {
+    color: #666;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .error-message {
+    color: #ff4444;
+    background-color: #ffebee;
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    border: 1px solid #ffcccb;
+  }
+
+----- File: ./app/ui/containers/auth-provider/index.tsx -----
+// app/ui/containers/auth-provider/index.tsx
+import { type ReactNode, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
+import { selectIsAuthenticated, selectUserRole } from "@/app/store/auth";
+
+interface Props {
+  readonly children: ReactNode;
+}
+
+const publicRoutes = ["/register", "/login"];
+
+export const AuthProvider = ({ children }: Props) => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userRole = useSelector(selectUserRole);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const isPublicRoute = publicRoutes.includes(location.pathname);
+
+    if (!isAuthenticated && !isPublicRoute) {
+      navigate("/login");
+    } else if (isAuthenticated && userRole) {
+      // Redirect users based on role
+      if (userRole === "admin") {
+        navigate("/admin-dashboard");
+      } else if (userRole === "worker") {
+        navigate("/worker-dashboard");
+      } else {
+        navigate("/guest-home");
+      }
+    }
+  }, [isAuthenticated, userRole, location.pathname, navigate]);
+
+  return <>{children}</>;
+};
+
+
+----- File: ./app/ui/containers/store-provider/index.tsx -----
+// app/ui/containers/store-provide/index.tsx
+'use client'
+import {type ReactNode} from 'react'
+import {Provider} from 'react-redux'
+import {store, persistor} from '@/app/store'
+import {PersistGate} from 'redux-persist/integration/react'
+
+interface Props {
+  readonly children: ReactNode
+}
+
+export function StoreProvider({ children }: Props) {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        {children}
+      </PersistGate>
+    </Provider>
+  )
+}
+
+
+----- File: ./app/utils/axiosConfig.ts -----
+// app/utils/axiosConfig.ts
+import axios from 'axios';
+
+const axiosInstance = axios.create({
+  baseURL: '/',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default axiosInstance;
+
+
+----- File: ./app/utils/getBaseUrl.ts -----
+// app/utils/getBaseUrl.ts
+export const getBaseUrl = () => {
+  return import.meta.env.BASE_URL
+}
+
+----- File: ./app/vite-env.d.ts -----
+/// <reference types="vite/client" />
+
+
