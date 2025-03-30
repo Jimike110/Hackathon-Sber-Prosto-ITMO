@@ -13,7 +13,8 @@ import ScreenShare from './ui/components/screen-share/ScreenShare';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import QRScanner from './ui/components/QRScanner';
 import MyGuests from './pages/Worker/MyGuests';
-import {AddGuest} from './pages/Worker/AddGuest';
+import { AddGuest } from './pages/Worker/AddGuest';
+import ProtectedRoute from './ui/components/ProtectedRoute';  // Import ProtectedRoute
 
 const queryClient = new QueryClient();
 
@@ -23,60 +24,39 @@ const App: React.FC = () => {
       <StoreProvider>
         <AuthProvider>
           <Routes>
+            {/* Public Routes */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
 
-            {/* Main layout with dynamic titles */}
+            {/* Protected Routes */}
             <Route element={<MainLayout />}>
-              <Route 
-                path="/" 
-                element={<Map />} 
-                handle={{ title: 'Parking Map Overview' }}
-              />
+              <Route path="/" element={<Map />} handle={{ title: 'Parking Map Overview' }} />
 
-              {/* Worker routes */}
-              <Route path="worker">
-                <Route 
-                  index 
-                  element={<WorkerLandingPage />} 
-                  handle={{ title: 'My Vehicles' }}
-                />
-                <Route 
-                  path="add-vehicle" 
-                  element={<AddVehiclePage />} 
-                  handle={{ title: 'Add New Vehicle' }}
-                />
-                <Route path="guests">
-                  <Route index element={<MyGuests />} handle={{ title: 'My Guests' }} />
-                  <Route path="add" element={<AddGuest />} handle={{ title: 'Add Guest' }} />
+              {/* Worker Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
+                <Route path="worker">
+                  <Route index element={<WorkerLandingPage />} handle={{ title: 'My Vehicles' }} />
+                  <Route path="add-vehicle" element={<AddVehiclePage />} handle={{ title: 'Add New Vehicle' }} />
+                  <Route path="guests">
+                    <Route index element={<MyGuests />} handle={{ title: 'My Guests' }} />
+                    <Route path="add" element={<AddGuest />} handle={{ title: 'Add Guest' }} />
+                  </Route>
                 </Route>
               </Route>
 
-              {/* Admin routes */}
-              <Route path="admin">
-                <Route 
-                  index 
-                  element={<AdminDashboard />} 
-                  handle={{ title: 'Administration Panel' }}
-                />
-                <Route 
-                  path="qr" 
-                  element={<QRScanner />} 
-                  handle={{ title: 'QR Scanner' }}
-                />
-                <Route 
-                  path="screen" 
-                  element={<ScreenShare />} 
-                  handle={{ title: 'Screen Sharing' }}
-                />
+              {/* Admin Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+                <Route path="admin">
+                  <Route index element={<AdminDashboard />} handle={{ title: 'Administration Panel' }} />
+                  <Route path="qr" element={<QRScanner />} handle={{ title: 'QR Scanner' }} />
+                  <Route path="screen" element={<ScreenShare />} handle={{ title: 'Screen Sharing' }} />
+                </Route>
               </Route>
 
-              {/* Guest routes */}
-              <Route 
-                path="guest" 
-                element={<div>Guest Dashboard</div>} 
-                handle={{ title: 'Guest Access' }}
-              />
+              {/* Guest Routes */}
+              <Route element={<ProtectedRoute allowedRoles={["guest"]} />}>
+                <Route path="guest" element={<div>Guest Dashboard</div>} handle={{ title: 'Guest Access' }} />
+              </Route>
 
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" replace />} />

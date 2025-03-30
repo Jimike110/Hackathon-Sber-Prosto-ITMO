@@ -1,4 +1,4 @@
-// src/pages/Guest/GuestDashboard.tsx
+// app/pages/Guest/GuestDashboard.tsx
 import React from 'react';
 import { Card, Typography } from 'antd';
 

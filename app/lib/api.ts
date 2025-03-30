@@ -1,4 +1,4 @@
-// src/lib/api.ts
+// app/lib/api.ts
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 

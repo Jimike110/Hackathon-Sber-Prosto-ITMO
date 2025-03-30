@@ -1,4 +1,4 @@
-// // src/pages/Admin/AdminDashboard.tsx
+// // app/pages/Admin/AdminDashboard.tsx
 // import React from 'react';
 // import { Card, Typography } from 'antd';
 

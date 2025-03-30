@@ -1,4 +1,4 @@
-// src/pages/Home/Home.tsx
+// app/pages/Home/Home.tsx
 import React from 'react';
 import { Card, Typography } from 'antd';
 

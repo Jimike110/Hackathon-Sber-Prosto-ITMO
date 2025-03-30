@@ -1,3 +1,4 @@
+// app/store/types.ts
 import {ThunkDispatch, UnknownAction} from '@reduxjs/toolkit'
 
 export type CreateStoreReturn = ReturnType<typeof import('./index').createStore>

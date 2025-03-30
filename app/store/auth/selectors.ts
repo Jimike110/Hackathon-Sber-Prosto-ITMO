@@ -1,3 +1,4 @@
+// app/store/auth/selectors.ts
 import {AppState} from "@/app/store/types";
 
 export const selectAccessToken = (state: AppState) => state.auth.accessToken

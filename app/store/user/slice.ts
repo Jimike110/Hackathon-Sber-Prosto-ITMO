@@ -1,3 +1,4 @@
+// app/store/user/slice.ts
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
 
 export const storeKey = '@redux/user'
