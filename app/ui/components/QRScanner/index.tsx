@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Col, Row, Typography, message } from "antd";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { isApiError } from "@/app/lib/api";
+import { fetchData, isApiError } from "@/app/lib/api";
 
 const { Title, Text } = Typography;
 
@@ -12,25 +12,23 @@ const QRScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
-  // Simulated authorization check.
-  // In your real implementation, replace this with an API call.
-  const checkAuthorization = async (): Promise<boolean> => {
+  const checkAuthorization = async (qrCode: string): Promise<boolean> => {
     try {
-      // Simulate a delay and API response.
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // For example, return true if the scan result contains a specific keyword.
-      // Replace the condition below with your real API call logic.
-      return scanResult?.includes("AUTHORIZED") || false;
+      const response = await fetchData<{ validate: boolean }>(
+        `/check/pass/guest?code=${encodeURIComponent(qrCode)}`
+      );
+      return response.validate;
     } catch (error) {
       if (isApiError(error)) {
-        console.log("API Error: ", error.message);
+        console.error("API Error:", error.message);
+        message.error("Authorization check failed");
       }
-      throw error;
+      return false;
     }
   };
 
   const startScanner = () => {
-    if (scannerRef.current) return; // Already initialized
+    if (scannerRef.current || isScanning) return;
 
     const config = {
       fps: 10,
@@ -42,27 +40,20 @@ const QRScanner = () => {
     setIsScanning(true);
 
     scannerRef.current.render(
-      async (decodedText: string) => {
-        setScanResult(decodedText);
-        message.success("QR Code Scanned!");
-        // When a QR code is scanned, check its authorization.
+      async (decodedText) => {
         try {
-          const authResult = await checkAuthorization();
+          setScanResult(decodedText);
+          const authResult = await checkAuthorization(decodedText);
           setIsAuthorized(authResult);
-          if (authResult) {
-            message.success("Authorized!");
-          } else {
-            message.error("Not authorized!");
-          }
+          message.success(authResult ? "Authorized!" : "Not authorized!");
         } catch (error) {
           setIsAuthorized(false);
-          message.error("Authorization error.");
+          message.error("Authorization error");
+        } finally {
+          stopScanner();
         }
-        // Optionally, stop scanning after a successful scan.
-        stopScanner();
       },
-      (errorMessage: string) => {
-        // Ignore errors about no QR code found in a frame.
+      (errorMessage) => {
         if (!errorMessage.includes("No MultiFormat Readers")) {
           setCameraError(errorMessage);
         }
@@ -70,18 +61,17 @@ const QRScanner = () => {
     );
   };
 
-  const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current
-        .clear()
-        .then(() => {
-          scannerRef.current = null;
-          setIsScanning(false);
-        })
-        .catch((error) => {
-          console.error("Failed to clear scanner", error);
-          setCameraError("Failed to stop scanner");
-        });
+  const stopScanner = async () => {
+    if (!scannerRef.current) return;
+    
+    try {
+      await scannerRef.current.clear();
+    } catch (error) {
+      console.error("Failed to clear scanner:", error);
+      setCameraError("Failed to stop scanner");
+    } finally {
+      scannerRef.current = null;
+      setIsScanning(false);
     }
   };
 
@@ -90,11 +80,9 @@ const QRScanner = () => {
     return () => {
       stopScanner();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleScanAgain = () => {
-    // Clear previous scan result and authorization status
     setScanResult(null);
     setIsAuthorized(null);
     setCameraError(null);
@@ -103,52 +91,44 @@ const QRScanner = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <Row justify="center" align="middle" style={{ marginBottom: "24px" }}>
-        <Col>
-          <Title level={3}>Scan QR Code</Title>
+      <Row justify="center" style={{ marginBottom: 24 }}>
+        <Title level={3}>Scan QR Code</Title>
+      </Row>
+
+      <Row justify="center" style={{ marginBottom: 24 }}>
+        <Col span={24} style={{ maxWidth: 300 }}>
+          <div id="qr-reader" />
         </Col>
       </Row>
 
-      <Row justify="center" style={{ marginBottom: "24px" }}>
-        <Col span={24}>
-          <div
-            id="qr-reader"
-            style={{
-              width: "100%",
-              maxWidth: "300px",
-              margin: "auto",
-            }}
-          ></div>
-        </Col>
-      </Row>
-
-      {/* Show authorization only when a scan result exists */}
       {scanResult && (
-        <Row justify="center" align="middle" style={{ marginBottom: "16px" }}>
+        <Row justify="center" style={{ marginBottom: 16 }}>
           <Col>
-            {isAuthorized === null ? null : isAuthorized ? (
-              <Text strong>AUTHORIZED</Text>
-            ) : (
-              <Text type="danger">UNAUTHORIZED</Text>
+            {isAuthorized === true && (
+              <Title level={4} type="success">AUTHORIZED</Title>
+            )}
+            {isAuthorized === false && (
+              <Title level={4} type="danger">UNAUTHORIZED</Title>
             )}
           </Col>
         </Row>
       )}
 
       {cameraError && (
-        <Row justify="center" align="middle" style={{ marginBottom: "16px" }}>
-          <Col>
-            <Text type="danger">{cameraError}</Text>
-          </Col>
+        <Row justify="center" style={{ marginBottom: 16 }}>
+          <Text type="danger">{cameraError}</Text>
         </Row>
       )}
 
-      <Row justify="center" style={{ marginBottom: "16px" }}>
-        <Col>
-          <Button type="primary" onClick={handleScanAgain} disabled={isScanning}>
-            {scanResult ? "Scan Again" : "Scan"}
-          </Button>
-        </Col>
+      <Row justify="center">
+        <Button 
+          type="primary" 
+          onClick={handleScanAgain}
+          disabled={isScanning && !scanResult}
+          loading={isScanning && !scanResult}
+        >
+          {scanResult ? "Scan Again" : "Start Scanning"}
+        </Button>
       </Row>
     </div>
   );

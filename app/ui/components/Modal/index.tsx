@@ -29,106 +29,67 @@ const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
   onClose,
   spaceInfo,
 }) => {
-
-  const getMap = async () => {
-    try {
-      const data = await fetchData(`dynamic_api`);
-      console.log(data);
-    } catch (error) {
-      if (isApiError(error)) {
-        console.log("API Error: ", error.message);
-      }
-      throw error;
-    }
-  };
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      getMap();
-    }, 100);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-
-  // Booking type state
   const [bookingType, setBookingType] = useState<'Day' | 'Hour'>('Day');
-  // For day booking: store disabled dates (simulate API result)
   const [disabledDayDates, setDisabledDayDates] = useState<string[]>([]);
   const [selectedDayRange, setSelectedDayRange] = useState<[any, any] | null>(null);
-  
-  // For hour booking: store selected date and time, and disabled hours (simulate API result)
   const [selectedHourDate, setSelectedHourDate] = useState<any>(null);
   const [selectedHourTime, setSelectedHourTime] = useState<any>(null);
   const [disabledHourTimes, setDisabledHourTimes] = useState<number[]>([]);
 
-  // Simulate fetching disabled dates for day booking when booking type changes to 'Day'
   useEffect(() => {
     if (bookingType === 'Day') {
-      const API_ENDPOINT = '/booking/'
-      // Example: These dates are occupied – replace with your API call
-      setDisabledDayDates(["2025-04-01", "2025-04-05"]);
-      // Clear any previously selected values
-      setSelectedDayRange(null);
+      console.log("Fetching disabled dates for day booking...");
+      // Fake API response
+      // const fakeData = { forbiddenDates: ["2025-04-01", "2025-04-05"] };
+      // setDisabledDayDates(fakeData.forbiddenDates);
+
+      // Uncomment to use real API
+      
+      fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/date`)
+        .then((data) => {
+          console.log("API Response for Day Booking:", data);
+          setDisabledDayDates(data.forbiddenDates);
+        })
+        .catch((error) => console.error("Error fetching day booking data:", error));
+      
     }
-  }, [bookingType]);
+  }, [bookingType, spaceInfo]);
 
-  // When switching to Hour booking, reset previous selections
-  useEffect(() => {
-    if (bookingType === 'Hour') {
-      setSelectedHourDate(null);
-      setSelectedHourTime(null);
-      setDisabledHourTimes([]); // reset API-simulated disabled hours
-    }
-  }, [bookingType]);
-
-  // Handler for radio button changes
-  const handleBookingTypeChange = (e: any) => {
-    const value = e.target.value;
-    setBookingType(value);
-  };
-
-  // For hour booking: when a date is selected, fetch disabled hours for that date
-  const handleHourDateChange = (date: any, dateString: string | string[]) => {
+  const handleHourDateChange = (date: any, dateString: string) => {
     setSelectedHourDate(date);
-    // Simulate an API call:
-    // For example, if the chosen date is "2025-04-10", disable hours 10, 11, and 15.
-    if (dateString === "2025-04-10") {
-      setDisabledHourTimes([10, 11, 15]);
-    } else {
-      setDisabledHourTimes([]);
-    }
+    console.log("Fetching disabled hours for:", dateString);
+    
+    // Fake API response
+    // const fakeData = { forbiddenHours: dateString === "2025-04-10" ? [10, 11, 15] : [] };
+    // setDisabledHourTimes(fakeData.forbiddenHours);
+    
+    // Uncomment to use real API
+    fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/hours?day=${dateString}`)
+      .then((data) => {
+        console.log("API Response for Hour Booking:", data);
+        setDisabledHourTimes(data.forbiddenHours);
+      })
+      .catch((error) => console.error("Error fetching hour booking data:", error));
   };
 
-  // Disable past dates and API-provided occupied dates for day booking
   const disabledDayDate = (current: any) => {
     if (!current) return false;
-    const today = dayjs().startOf("day");
-    if (current.isBefore(today)) return true;
-    return disabledDayDates.includes(current.format("YYYY-MM-DD"));
+    return current.isBefore(dayjs().startOf("day")) || disabledDayDates.includes(current.format("YYYY-MM-DD"));
   };
 
-  // For hour booking, disable past dates
   const disabledHourDate = (current: any) => {
-    if (!current) return false;
-    const today = dayjs().startOf("day");
-    return current.isBefore(today);
+    return current && current.isBefore(dayjs().startOf("day"));
   };
 
-  // Disable times in TimePicker for hour booking
   const disabledHourTime = () => {
-    // Start with API-simulated disabled hours
     let disabled = [...disabledHourTimes];
-    // If the selected date is today, also disable hours less than the current hour.
     if (selectedHourDate && selectedHourDate.isSame(dayjs(), "day")) {
       const currentHour = dayjs().hour();
       for (let i = 0; i < currentHour; i++) {
         if (!disabled.includes(i)) disabled.push(i);
       }
     }
-    // Sort disabled hours array
-    disabled.sort((a, b) => a - b);
-    return { disabledHours: () => disabled };
+    return { disabledHours: () => disabled.sort((a, b) => a - b) };
   };
 
   return (
@@ -145,50 +106,42 @@ const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
             <Text>Номер ряда: {spaceInfo.column}</Text>
             <br />
             <Text>Номер места: {spaceInfo.row}</Text>
-            <br />
-            <Text>Статус: </Text>
-            <br />
-            <Text>Телефон: </Text>
-            <br />
           </div>
           <Title level={5}>Выберите время бронирования</Title>
           <Card>
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               <Radio.Group
                 options={options}
-                onChange={handleBookingTypeChange}
+                onChange={(e) => setBookingType(e.target.value)}
                 value={bookingType}
                 optionType="button"
                 buttonStyle="solid"
               />
               {bookingType === "Day" ? (
-                <div style={{ marginTop: 16 }}>
-                  <RangePicker
-                    disabledDate={disabledDayDate}
-                    onChange={(dates) => setSelectedDayRange(dates as [any, any])}
+                <RangePicker
+                  disabledDate={disabledDayDate}
+                  onChange={(dates) => setSelectedDayRange(dates as [any, any])}
+                  format="YYYY-MM-DD"
+                  style={{ width: "100%" }}
+                />
+              ) : (
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <DatePicker
+                    disabledDate={disabledHourDate}
+                    onChange={handleHourDateChange}
                     format="YYYY-MM-DD"
                     style={{ width: "100%" }}
+                    placeholder="Выберите дату"
                   />
-                </div>
-              ) : (
-                <div style={{ marginTop: 16 }}>
-                  <Space direction="vertical" style={{ width: "100%" }}>
-                    <DatePicker
-                      disabledDate={disabledHourDate}
-                      onChange={handleHourDateChange}
-                      format="YYYY-MM-DD"
-                      style={{ width: "100%" }}
-                      placeholder="Выберите дату"
-                    />
-                    <TimePicker
-                      disabledTime={disabledHourTime}
-                      onChange={(time) => setSelectedHourTime(time)}
-                      format="HH:mm"
-                      style={{ width: "100%" }}
-                      placeholder="Выберите время"
-                    />
-                  </Space>
-                </div>
+                  <TimePicker
+                    disabledTime={disabledHourTime}
+                    onChange={(time) => setSelectedHourTime(time)}
+                    format="HH:mm"
+                    style={{ width: "100%" }}
+                    placeholder="Выберите время"
+                    minuteStep={15}
+                  />
+                </Space>
               )}
             </Space>
           </Card>
