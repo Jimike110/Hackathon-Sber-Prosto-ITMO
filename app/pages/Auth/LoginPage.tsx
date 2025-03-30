@@ -5,7 +5,7 @@ import { useUsers } from '@/app/hooks/useUsers';
 import React from 'react';
 
 interface LoginForm {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -31,9 +31,9 @@ export const LoginPage = () => {
           layout="vertical"
         >
           <Form.Item
-            label="Email"
-            name="email"
-            rules={[{ required: true, message: 'Please input your email!' }]}
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: 'Please input your username!' }]}
           >
             <Input />
           </Form.Item>

@@ -1,18 +1,20 @@
 // app/pages/Worker/MyGuests.tsx
+import { isApiError } from '@/app/lib/api';
 import { Button, Col, Row, Table, Tag } from 'antd'
 import Title from 'antd/es/typography/Title';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 const MyGuests = () => {
 
     const navigate = useNavigate();
+    const [guests, setGuests] = useState([]);
 
-    const dummmyGuests = [
+    const dummyGuests = [
         {
           key: "1",
           name: "Ivan",
-          phone: "+7 (954) 9025 902",
+          plate: "+7 (954) 9025 902",
           date: "ABC-123",
           showPass: "Silver",
           active: true,
@@ -20,14 +22,14 @@ const MyGuests = () => {
         {
           key: "2",
           name: "Anton",
-          phone: "+7 (925) 8405 123",
+          plate: "+7 (925) 8405 123",
           date: "XYZ-789",
           showPass: "Black",
         },
         {
           key: "3",
           name: "Michael",
-          phone: "+7 (926) 7684 223",
+          plate: "+7 (926) 7684 223",
           date: "DEF-456",
           showPass: "White",
         },
@@ -35,7 +37,7 @@ const MyGuests = () => {
     
       const columns = [
         { title: "Name", dataIndex: "name", key: "name" },
-        { title: "Phone", dataIndex: "phone", key: "phone" },
+        { title: "Number Plate", dataIndex: "plate", key: "phone" },
         { title: "Date", dataIndex: "date", key: "date" },
         {
             title: 'Show Pass',
@@ -59,6 +61,28 @@ const MyGuests = () => {
         },
       ];
 
+        const getGuests = async () => {
+          try {
+            // const data = await fetchData<MapItem[]>("/park/guest"); // Real API request
+            // setMap(data);
+        setGuests(dummyGuests);
+          } catch (error) {
+            if (isApiError(error)) {
+              console.log("API Error: ", error.message);
+            }
+          }
+        };
+      
+        useEffect(() => {
+          getGuests(); // Fetch data once on mount
+      
+          const interval = setInterval(() => {
+            getGuests(); // Fetch data every second
+          }, 1000);
+      
+          return () => clearInterval(interval); // Cleanup on unmount
+        }, []);
+
 
   return (
     <div>
@@ -71,7 +95,7 @@ const MyGuests = () => {
             </Col>
         </Row>
         <Table
-              dataSource={dummmyGuests}
+              dataSource={guests}
               columns={columns}
               pagination={false}
               rowClassName={(record) => (record.active ? "active-row" : "")}

@@ -1,7 +1,7 @@
 // app/types.ts
 export interface User {
   id: number
-  email: string;
+  username: string;
 }
 
 export interface SuccessfulAuth {

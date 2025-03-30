@@ -40,10 +40,42 @@ const ParkingMap = () => {
     setSelectedSpace(null);
   };
 
+  const fakeData: MapItem[] = [
+    {
+      id: 1,
+      x: 10,
+      y: 5,
+      address: "Fake Address",
+      name: "Fake Parking Lot",
+      spaces: [
+        {
+          id: 1,
+          x: 1,
+          y: 1,
+          type: "ROAD",
+          space_type: "OWNED",
+          status: "BLOCKED",
+        },
+        {
+          id: 2,
+          x: 2,
+          y: 1,
+          type: "ROAD",
+          space_type: "OWNED",
+          status: "AVAILABLE",
+        },
+        // Add more spaces as needed...
+      ],
+    },
+  ];
+
+
+
   const getMap = async () => {
     try {
-      const data = await fetchData<MapItem[]>("/api/parking/space/list"); // Real API request
-      setMap(data);
+      // const data = await fetchData<MapItem[]>("/api/parking/space/list"); // Real API request
+      // setMap(data);
+  setMap(fakeData);
     } catch (error) {
       if (isApiError(error)) {
         console.log("API Error: ", error.message);
@@ -51,15 +83,15 @@ const ParkingMap = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getMap(); // Fetch data once on mount
+  useEffect(() => {
+    getMap(); // Fetch data once on mount
 
-  //   const interval = setInterval(() => {
-  //     getMap(); // Fetch data every second
-  //   }, 1000);
+    const interval = setInterval(() => {
+      getMap(); // Fetch data every second
+    }, 1000);
 
-  //   return () => clearInterval(interval); // Cleanup on unmount
-  // }, []);
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
 
   const lot = map[0];
   const maxX = lot ? lot.x : 0;

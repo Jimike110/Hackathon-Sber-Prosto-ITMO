@@ -49,9 +49,9 @@ export const AddGuest = () => {
           <Input />
         </Form.Item>
         <Form.Item 
-          label="Phone" 
-          name="phone" 
-          rules={[{ required: false, message: 'Please enter their phone number' }]}
+          label="Plate" 
+          name="plate" 
+          rules={[{ required: false, message: 'Please enter their plate number' }]}
         >
           <Input />
         </Form.Item>

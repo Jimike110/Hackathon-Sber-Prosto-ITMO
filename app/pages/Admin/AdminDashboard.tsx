@@ -1,75 +1,179 @@
-// // app/pages/Admin/AdminDashboard.tsx
-// import React from 'react';
-// import { Card, Typography } from 'antd';
+// app/ui/components/Map/index.tsx
+import { Card } from 'antd';
+import React, { useEffect, useState } from 'react';
+import ParkingSpaceModal from '../../ui/components/Modal/index';
+import { fetchData, isApiError } from '@/app/lib/api';
 
-// const { Title } = Typography;
+interface MapItem {
+  id: number;
+  x: number;
+  y: number;
+  address: string;
+  name: string;
+  spaces: SpaceItem[];
+}
 
-// const AdminDashboard: React.FC = () => {
-//   return (
-//     <Card>
-//       <Title level={2}>Admin Dashboard</Title>
-//       <p>Admin related content goes here.</p>
-//     </Card>
-//   );
-// };
+interface SpaceItem {
+  id: number;
+  x: number;
+  y: number;
+  type: string;
+  space_type: string;
+  status: string;
+}
 
-// export default AdminDashboard;
+const AdminDashboard = () => {
+  const rowSpacing = 20;
+  const spaceWidth = 10;
+  const roadColor = '#f0eded';
 
+  const [map, setMap] = useState<MapItem[]>([]);
+  const [selectedSpace, setSelectedSpace] = useState<SpaceItem | null>(null);
 
-import React, { useState } from "react";
-import ReactDOM from "react-dom";
-import { TimePicker } from "antd";
-// import "antd/dist/antd.css";
-// import "./index.css";
-import moment from "moment";
-
-const TimeComponent = () => {
-  const [selectedTime, setSelectedTime] = useState(moment());
-  const disabledHours = () => {
-    const hours = [];
-    const currentHour = moment().hour();
-
-    for (let i = currentHour + 1; i <= 24; i++) {
-      hours.push(i);
+  const handleSpaceClick = (space: SpaceItem) => {
+    if (space.status === "AVAILABLE") {
+      setSelectedSpace(space);
     }
-
-    return hours;
   };
 
-  const disabledMinutes = (selectedHour) => {
-    const minutes = [];
-    const currentMinute = moment().minute();
-    if (selectedHour === moment().hour()) {
-      for (let i = currentMinute + 1; i <= 60; i++) {
-        minutes.push(i);
+  const closeModal = () => {
+    setSelectedSpace(null);
+  };
+
+  const fakeData: MapItem[] = [
+    {
+      id: 1,
+      x: 10,
+      y: 5,
+      address: "Fake Address",
+      name: "Fake Parking Lot",
+      spaces: [
+        {
+          id: 1,
+          x: 1,
+          y: 1,
+          type: "ROAD",
+          space_type: "OWNED",
+          status: "BLOCKED",
+        },
+        {
+          id: 2,
+          x: 2,
+          y: 1,
+          type: "ROAD",
+          space_type: "OWNED",
+          status: "AVAILABLE",
+        },
+        // Add more spaces as needed...
+      ],
+    },
+  ];
+
+
+
+  const getMap = async () => {
+    try {
+      // const data = await fetchData<MapItem[]>("/api/parking/space/list"); // Real API request
+      // setMap(data);
+  setMap(fakeData);
+    } catch (error) {
+      if (isApiError(error)) {
+        console.log("API Error: ", error.message);
       }
     }
-    return minutes;
   };
 
-  const onSelect = (time) => {
-    if (time.isAfter(moment())) {
-      console.log("ping");
-      setSelectedTime(moment());
-      return;
-    }
+  useEffect(() => {
+    getMap(); // Fetch data once on mount
 
-    setSelectedTime(time);
+    const interval = setInterval(() => {
+      getMap(); // Fetch data every second
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  const lot = map[0];
+  const maxX = lot ? lot.x : 0;
+  const maxY = lot ? lot.y : 0;
+
+  const getSpaceColor = (status: string) => {
+    if (status === "AVAILABLE") return "#4CFF00";
+    else if (status === "BLOCKED") return "red";
+    else if (status === "DISABLE") return "grey";
+    return "#4CFF00";
   };
 
   return (
-    <TimePicker
-      onSelect={onSelect}
-      disabledHours={disabledHours}
-      disabledMinutes={disabledMinutes}
-      format="h:mm a"
-      value={selectedTime}
-      style={{ width: "100%" }}
-      use12Hours={true}
-    />
+    <>
+      {selectedSpace && (
+        <ParkingSpaceModal 
+          visible={true}
+          onClose={closeModal}
+          spaceInfo={{ row: selectedSpace.y, column: selectedSpace.x }}
+        />
+      )}
+
+      <Card style={{ padding: 16 }}>
+        <div style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          gap: rowSpacing,
+          backgroundColor: roadColor,
+          padding: 16,
+          borderRadius: 4
+        }}>
+          {Array.from({ length: maxY }).map((_, rowIndex) => (
+            <div key={rowIndex} style={{
+              display: 'flex',
+              gap: 10,
+              position: 'relative'
+            }}>
+              <div style={{
+                display: 'flex',
+                gap: 20,
+                flex: 1,
+                backgroundColor: 'transparent'
+              }}>
+                {Array.from({ length: maxX }).map((_, colIndex) => {
+                  const space = lot ? lot.spaces.find(s => s.x === colIndex + 1 && s.y === rowIndex + 1) : null;
+                  const color = space ? getSpaceColor(space.status) : "#fff";
+                  return (
+                    <div
+                      key={`${rowIndex}-${colIndex}`}
+                      style={{
+                        flex: 1,
+                        minWidth: spaceWidth,
+                        height: 50,
+                        width: 50,
+                        backgroundColor: color,
+                        borderRadius: '10px',
+                        cursor: space && space.status === "AVAILABLE" ? 'pointer' : 'default',
+                        transition: 'all 0.2s',
+                        position: 'relative',
+                        boxSizing: 'border-box',
+                      }}
+                      onClick={() => space && handleSpaceClick(space)}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 4,
+                        right: 4,
+                        fontSize: 10,
+                        color: '#666'
+                      }}>
+                        {rowIndex + 1}-{colIndex + 1}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </>
   );
 };
 
-// ReactDOM.render(<TimeComponent />, document.getElementById("root"));
-
-export default TimeComponent
+export default AdminDashboard;

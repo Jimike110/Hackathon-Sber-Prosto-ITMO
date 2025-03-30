@@ -5,7 +5,7 @@ export const storeKey = '@redux/user'
 
 export interface User {
   id: string
-  email: string
+  username: string
   name: string
 }
 

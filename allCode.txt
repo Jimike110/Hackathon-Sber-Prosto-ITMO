@@ -97,7 +97,7 @@ import { loginSuccess, fetchUserRole, } from "@/app/store/auth";
 import {useAppDispatch} from "@/app/store/hooks";
 
 interface AuthCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -368,7 +368,7 @@ import {useUsers} from '@/app/hooks/useUsers';
 // import './styles.module.scss'
 
 interface LoginForm {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -394,9 +394,9 @@ export const LoginPage = () => {
           layout="vertical"
         >
           <Form.Item
-            label="Email"
-            name="email"
-            rules={[{required: true, message: 'Please input your email!'}]}
+            label="username"
+            name="username"
+            rules={[{required: true, message: 'Please input your username!'}]}
           >
             <Input/>
           </Form.Item>
@@ -430,7 +430,7 @@ import {useUsers} from '@/app/hooks/useUsers';
 // import './styles.modules.scss'
 
 interface RegisterForm {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
 }
@@ -442,7 +442,7 @@ export const RegisterPage = () => {
   const onFinish = async (values: RegisterForm) => {
     try {
       await registerUser.mutateAsync({
-        email: values.email,
+        username: values.username,
         password: values.password,
       });
       navigate("/")
@@ -460,11 +460,11 @@ export const RegisterPage = () => {
           layout="vertical"
         >
           <Form.Item
-            label="Email"
-            name="email"
+            label="username"
+            name="username"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email!' }
+              { required: true, message: 'Please input your username!' },
+              { type: 'username', message: 'Please enter a valid username!' }
             ]}
           >
             <Input />
@@ -1214,7 +1214,7 @@ export const storeKey = '@redux/user'
 
 export interface User {
   id: string
-  email: string
+  username: string
   name: string
 }
 
@@ -1244,7 +1244,7 @@ export const { setUser } = userSlice.actions
 // app/types.ts
 export interface User {
   id: number
-  email: string;
+  username: string;
 }
 
 export interface SuccessfulAuth {

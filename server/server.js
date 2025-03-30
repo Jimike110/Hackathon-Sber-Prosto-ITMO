@@ -5,9 +5,9 @@ import bodyParser from 'body-parser';
 
 // Simulated Database
 const users = [
-  { id: 1, email: 'admin', password: 'admin123', role: 'admin' },
-  { id: 2, email: 'worker1', password: 'worker123', role: 'worker' },
-  { id: 3, email: 'guest1', password: 'guest123', role: 'guest' }
+  { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
+  { id: 2, username: 'worker1', password: 'worker123', role: 'worker' },
+  { id: 3, username: 'guest1', password: 'guest123', role: 'guest' }
 ];
 
 const vehicles = [];
@@ -20,7 +20,7 @@ const SECRET_KEY = 'your_secret_key';
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Your frontend URL
+    origin: 'http://localhost:5173', // Your frontend URL
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
   }));
@@ -28,8 +28,8 @@ app.use(bodyParser.json());
 
 // 🚀 LOGIN - Issue JWT
 app.post('/user/login', (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find((u) => u.email === email && u.password === password);
+  const { username, password } = req.body;
+  const user = users.find((u) => u.username === username && u.password === password);
   
   if (!user) {
     return res.status(401).json({ error: 'Invalid credentials' });
@@ -49,7 +49,7 @@ const authenticateJWT = (req, res, next) => {
       return res.status(403).json({ error: 'Access denied' });
     }
   
-    const token = authHeader.split(' ')[1];
+    const token = authHeader;
     
     try {
       const decoded = jwt.verify(token, SECRET_KEY);
@@ -63,7 +63,7 @@ const authenticateJWT = (req, res, next) => {
 
 // 📌 GET Current User Info
 app.get('/user/me', authenticateJWT, (req, res) => {
-  res.json({ id: req.user.id, email: req.user.email, role: req.user.role });
+  res.json({ id: req.user.id, username: req.user.username, role: req.user.role });
 });
 
 // 🔐 Middleware - Role-based Access Control

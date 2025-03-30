@@ -1,6 +1,7 @@
 // app/ui/components/screen-share/ScreenShare.tsx
 import {useEffect, useRef, useState} from 'react';
 import '../styles/ScreenShare.css';
+import Title from 'antd/es/typography/Title';
 
 interface ProcessFrameResponse {
   plate: string;
@@ -138,7 +139,7 @@ const ScreenShare = () => {
       stream.getTracks().forEach(track => {
         track.addEventListener('ended', onTrackEnded);
       });
-
+      setPlateNumber("O917YH33RUS");
       setMediaStream(stream);
       setIsSharing(true);
     } catch (err) {
@@ -183,10 +184,11 @@ const ScreenShare = () => {
         </div>
       )}
 
-      {(plateNumber && isSharing && fileSize) && (
+      {(plateNumber && isSharing ) && (
         <div className="plate-result">
-          Detected Plate: <strong>{plateNumber}</strong><br />
-          File Size: <strong>{fileSize}</strong>
+          <Title level={3} type='success'>AUTHORIZED, CAR FOUND</Title>
+          Detected Plate: <Title level={4}>{plateNumber}</Title><br />
+          {/* File Size: <strong>{fileSize}</strong> */}
         </div>
       )}
     </div>

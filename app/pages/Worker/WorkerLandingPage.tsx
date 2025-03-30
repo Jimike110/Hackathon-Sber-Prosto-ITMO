@@ -75,10 +75,13 @@ const WorkerLandingPage: React.FC = () => {
 
   return (
     <div style={{ padding: "24px", background: "#f0f2f5", minHeight: "100vh" }}>
-      <Row justify="space-between"
+      <Row justify="space-evenly"
             align="middle"
+            
             style={{ marginBottom: "24px" }}>
         <Col>
+        <Card>
+        <Title level={2}>My Profile</Title>
           <Form
             name="basic"
             labelCol={{ span: 8 }}
@@ -130,10 +133,11 @@ const WorkerLandingPage: React.FC = () => {
                 Submit
               </Button>
             </Form.Item>
-          </Form>
+          </Form></Card>
         </Col>
         
         <Col>
+        <Card>
           <Row
             justify="space-between"
             align="middle"
@@ -191,6 +195,7 @@ const WorkerLandingPage: React.FC = () => {
               pagination={false}
               rowClassName={(record) => (record.active ? "active-row" : "")}
             />
+          </Card>
           </Card>
         </Col>
       </Row>

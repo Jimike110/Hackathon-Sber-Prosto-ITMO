@@ -34,12 +34,17 @@ const App: React.FC = () => {
 
             {/* Protected Routes under MainLayout */}
             <Route element={<MainLayout />}>
-              <Route path="/" element={<Map />} handle={{ title: 'Parking Map Overview' }} />
+              {/* Shared Map route for both admin & worker */}
+              <Route element={<ProtectedRoute allowedRoles={["worker", "admin"]} />}>
+                <Route path="/" element={<Map />} handle={{ title: 'Parking Map Overview' }} />
+              </Route>
 
               {/* Worker Routes */}
               <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
                 <Route path="worker">
-                  <Route index element={<WorkerLandingPage />} handle={{ title: 'My Vehicles' }} />
+                  <Route index element={<Map />} handle={{ title: 'My Vehicles' }} />
+                  
+                  <Route path='me' element={<WorkerLandingPage />} handle={{ title: 'My Vehicles' }} />
                   <Route path="add-vehicle" element={<AddVehiclePage />} handle={{ title: 'Add New Vehicle' }} />
                   <Route path="guests">
                     <Route index element={<MyGuests />} handle={{ title: 'My Guests' }} />
@@ -51,7 +56,8 @@ const App: React.FC = () => {
               {/* Admin Routes */}
               <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="admin">
-                  <Route index element={<AdminDashboard />} handle={{ title: 'Administration Panel' }} />
+                <Route index element={<Map />} handle={{ title: 'Administration Panel' }} />
+                  <Route path='admin' element={<AdminDashboard />} handle={{ title: 'Administration Panel' }} />
                   <Route path="qr" element={<QRScanner />} handle={{ title: 'QR Scanner' }} />
                   <Route path="screen" element={<ScreenShare />} handle={{ title: 'Screen Sharing' }} />
                 </Route>

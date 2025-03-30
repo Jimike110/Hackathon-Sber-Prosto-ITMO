@@ -8,7 +8,7 @@ export const fetchUserRole = createAsyncThunk(
     try {
       console.log(token);
       const response = await fetch("http://localhost:5000/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `${token}` },
       });
       if (!response.ok) {
         console.log("error")

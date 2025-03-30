@@ -4,7 +4,7 @@ import { useAppDispatch } from '@/app/store/hooks';
 import { loginSuccess, fetchUserRole } from '@/app/store/auth';
 
 interface AuthCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 

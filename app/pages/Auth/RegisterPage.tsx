@@ -6,7 +6,7 @@ import {useUsers} from '@/app/hooks/useUsers';
 // import './styles.modules.scss'
 
 interface RegisterForm {
-  email: string;
+  username: string;
   password: string;
   confirmPassword: string;
 }
@@ -18,7 +18,7 @@ export const RegisterPage = () => {
   const onFinish = async (values: RegisterForm) => {
     try {
       await registerUser.mutateAsync({
-        email: values.email,
+        username: values.username,
         password: values.password,
       });
       navigate("/")
@@ -36,11 +36,11 @@ export const RegisterPage = () => {
           layout="vertical"
         >
           <Form.Item
-            label="Email"
-            name="email"
+            label="username"
+            name="username"
             rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email!' }
+              { required: true, message: 'Please input your username!' },
+              { type: 'username', message: 'Please enter a valid username!' }
             ]}
           >
             <Input />

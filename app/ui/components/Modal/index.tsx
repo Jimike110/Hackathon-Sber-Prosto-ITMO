@@ -42,17 +42,17 @@ const ParkingSpaceModal: React.FC<ParkingSpaceModalProps> = ({
     if (bookingType === 'Day') {
       console.log("Fetching disabled dates for day booking...");
       // Fake API response
-      // const fakeData = { forbiddenDates: ["2025-04-01", "2025-04-05"] };
-      // setDisabledDayDates(fakeData.forbiddenDates);
+      const fakeData = { forbiddenDates: ["2025-04-01", "2025-04-05"] };
+      setDisabledDayDates(fakeData.forbiddenDates);
 
       // Uncomment to use real API
       
-      fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/date`)
-        .then((data) => {
-          console.log("API Response for Day Booking:", data);
-          setDisabledDayDates(data.forbiddenDates);
-        })
-        .catch((error) => console.error("Error fetching day booking data:", error));
+      // fetchData(`/booking/${spaceInfo?.row}_${spaceInfo?.column}/date`)
+      //   .then((data) => {
+      //     console.log("API Response for Day Booking:", data);
+      //     setDisabledDayDates(data.forbiddenDates);
+      //   })
+      //   .catch((error) => console.error("Error fetching day booking data:", error));
       
     }
   }, [bookingType, spaceInfo]);
